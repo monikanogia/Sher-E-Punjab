@@ -1,0 +1,90 @@
+Project Title: Zero-Cost QR-Based Digital Menu & WhatsApp Ordering System
+
+Objective:
+Build a full-stack web application for a small restaurant. The goal is to replace physical paper menus with a QR-based digital menu where customers can browse items and place orders via WhatsApp to avoid manual price editing on paper.
+
+Tech Stack:
+
+Backend: Spring Boot (Java 17+), Spring Security (JWT), Spring Data JPA.
+
+Frontend: React.js, Tailwind CSS (Mobile-first design).
+
+Database: PostgreSQL/MySQL.
+
+Communication: WhatsApp Click-to-Chat (Browser-based).
+
+Key Modules & Features:
+
+1. Customer-Facing Menu (Public):
+
+URL Structure: [domain.com/menu?table=](https://domain.com/menu?table=){table_id}. The app must capture table_id from the URL.
+
+Menu Display:
+
+Categorized view (e.g., Starters, Main Course, Drinks) using Accordions/Tabs.
+
+Search bar for searching dishes.
+
+Veg/Non-Veg toggle and "In Stock" indicators.
+
+Cart & Ordering:
+
+Users add items to a floating cart.
+
+"Place Order" button that triggers a WhatsApp message to the owner's number.
+
+WhatsApp Message Format:
+New Order - Table {table_id}
+--------------------
+1x Paneer Tikka - ₹250
+2x Masala Chai - ₹40
+--------------------
+Total: ₹290
+
+Service Button: A "Call Waiter" button that sends a WhatsApp message: "Table {table_id} needs assistance."
+
+2. Admin Panel (Protected):
+
+Authentication: Simple Login page for the owner.
+
+Menu Management (CRUD):
+
+Ability to Add/Edit/Delete Categories and Dishes.
+
+Quick Toggle: A simple switch to mark a dish as "Out of Stock" instantly.
+
+Price Update: Edit prices without needing to redeploy or print anything.
+
+QR Management Dashboard:
+
+A section to view all active tables.
+
+A button to "Generate QR" for a specific table number that links to the correct URL.
+
+Ability to download the QR code as an image for printing.
+
+3. Database Schema:
+
+Category (id, name, display_order)
+
+Dish (id, name, description, price, is_veg, is_available, category_id)
+
+Admin (id, username, password)
+
+UI/UX Requirements:
+
+For Customers: Needs to look like a premium food app (clean images, fast loading).
+
+For Admin (Uncle): High contrast, large buttons, and very simple navigation (Elderly-friendly).
+
+Instructions for the AI:
+
+Generate the Spring Boot entities, controllers, and services.
+
+Generate the React components using Tailwind CSS.
+
+Use lucide-react for icons.
+
+Ensure the layout is fully responsive (optimized for mobile browsers).
+
+Implement the WhatsApp URL generation logic using window.open([https://wa.me/](https://wa.me/)...).

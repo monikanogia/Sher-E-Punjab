@@ -128,7 +128,7 @@ export default function Menu() {
 
           {/* Filters */}
           <div className="flex gap-2">
-            {[["all", "All"], ["veg", "Veg"], ["nonveg", "Non-Veg"]].map(([val, label]) => (
+            {[["all", "All"], ["veg", "Veg"]].map(([val, label]) => (
               <button
                 key={val}
                 onClick={() => setVegFilter(val as typeof vegFilter)}

@@ -292,5 +292,5 @@ pnpm run dev
 
 - The project is well-structured with **clean separation of concerns**.
 - **Code generation** (Orval) ensures frontend & backend stay in sync via OpenAPI.
-- **Replit-specific configs** need to be removed/adjusted for local or production deployment.
+- **specific configs** need to be removed/adjusted for local or production deployment.
 - **Hardcoded credentials** in `drizzle.config.ts` should be moved to environment variables immediately.

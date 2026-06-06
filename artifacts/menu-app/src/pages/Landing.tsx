@@ -1,10 +1,13 @@
-import { Link } from "wouter";
+import { Link, useSearch  } from "wouter";
 import { useGetPublicSettings, useListFeaturedDishes } from "@workspace/api-client-react";
 import { Utensils, Clock, MapPin, QrCode, ChevronRight, Leaf, Flame } from "lucide-react";
 
 export default function Landing() {
+   const search = useSearch();
+  const tableId = new URLSearchParams(search).get("table") ?? "";
   const settings = useGetPublicSettings();
   const featured = useListFeaturedDishes();
+  const menuHref = tableId ? `/menu?table=${tableId}` : "/menu";
 
   const restaurantName = settings.data?.restaurantName ?? "Spice Garden";
   const openingHours = settings.data?.openingHours ?? "Mon-Sun: 11AM - 11PM";
@@ -37,7 +40,7 @@ export default function Landing() {
             {isOpen ? "Open Now" : "Currently Closed"}
           </div>
           <Link
-            href="/menu"
+            href={menuHref}  
             data-testid="link-view-menu"
             className="inline-flex items-center gap-3 bg-white text-primary font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-200"
           >
@@ -81,7 +84,7 @@ export default function Landing() {
               featured.data.slice(0, 6).map((dish) => (
                 <Link
                   key={dish.id}
-                  href="/menu"
+                  href={menuHref}
                   data-testid={`card-featured-${dish.id}`}
                   className="group relative rounded-2xl overflow-hidden bg-card border border-border hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
                 >
@@ -123,7 +126,7 @@ export default function Landing() {
 
         <div className="text-center mt-10">
           <Link
-            href="/menu"
+            href={menuHref}
             data-testid="link-full-menu"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-bold text-lg hover:opacity-90 hover:scale-105 transition-all duration-200 shadow-lg"
           >

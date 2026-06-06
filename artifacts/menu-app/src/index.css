@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&family=Cinzel:wght@400;600;900&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -69,11 +69,11 @@
 
 /* LIGHT MODE - Warm saffron/cream Indian restaurant palette */
 :root {
-  --button-outline: rgba(0,0,0, .10);
-  --badge-outline: rgba(0,0,0, .05);
+  --button-outline: rgba(0, 0, 0, .10);
+  --badge-outline: rgba(0, 0, 0, .05);
   --opaque-button-border-intensity: -8;
-  --elevate-1: rgba(0,0,0, .03);
-  --elevate-2: rgba(0,0,0, .08);
+  --elevate-1: rgba(0, 0, 0, .03);
+  --elevate-2: rgba(0, 0, 0, .08);
 
   --background: 36 33% 97%;
   --foreground: 20 14% 16%;
@@ -84,7 +84,7 @@
   --sidebar: 0 0% 100%;
   --sidebar-foreground: 20 14% 16%;
   --sidebar-border: 30 20% 88%;
-  --sidebar-primary: 22 90% 52%;
+  --sidebar-primary: 150 45% 22%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 36 80% 95%;
   --sidebar-accent-foreground: 22 90% 40%;
@@ -92,7 +92,7 @@
   --popover: 0 0% 100%;
   --popover-foreground: 20 14% 16%;
   --popover-border: 30 20% 88%;
-  --primary: 22 90% 52%;
+  --primary: 150 45% 22%;
   --primary-foreground: 0 0% 100%;
   --secondary: 36 80% 95%;
   --secondary-foreground: 22 90% 40%;
@@ -103,7 +103,7 @@
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
   --input: 30 20% 86%;
-  --ring: 22 90% 52%;
+  --ring: 150 45% 22%;
   --chart-1: 22 90% 52%;
   --chart-2: 142 71% 45%;
   --chart-3: 210 85% 55%;
@@ -114,14 +114,14 @@
   --app-font-serif: 'Playfair Display', Georgia, serif;
   --app-font-mono: Menlo, monospace;
   --radius: 0.75rem;
-  --shadow-2xs: 0px 1px 2px 0px rgba(0,0,0,0.05);
-  --shadow-xs: 0px 1px 3px 0px rgba(0,0,0,0.07);
-  --shadow-sm: 0px 2px 4px 0px rgba(0,0,0,0.06), 0px 1px 2px -1px rgba(0,0,0,0.04);
-  --shadow: 0px 4px 8px 0px rgba(0,0,0,0.08), 0px 2px 4px -1px rgba(0,0,0,0.05);
-  --shadow-md: 0px 6px 16px 0px rgba(0,0,0,0.1), 0px 2px 4px -1px rgba(0,0,0,0.06);
-  --shadow-lg: 0px 10px 24px 0px rgba(0,0,0,0.12), 0px 4px 8px -2px rgba(0,0,0,0.07);
-  --shadow-xl: 0px 20px 40px 0px rgba(0,0,0,0.14);
-  --shadow-2xl: 0px 32px 64px 0px rgba(0,0,0,0.16);
+  --shadow-2xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+  --shadow-xs: 0px 1px 3px 0px rgba(0, 0, 0, 0.07);
+  --shadow-sm: 0px 2px 4px 0px rgba(0, 0, 0, 0.06), 0px 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.08), 0px 2px 4px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0px 6px 16px 0px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0px 10px 24px 0px rgba(0, 0, 0, 0.12), 0px 4px 8px -2px rgba(0, 0, 0, 0.07);
+  --shadow-xl: 0px 20px 40px 0px rgba(0, 0, 0, 0.14);
+  --shadow-2xl: 0px 32px 64px 0px rgba(0, 0, 0, 0.16);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
@@ -135,11 +135,11 @@
 }
 
 .dark {
-  --button-outline: rgba(255,255,255, .10);
-  --badge-outline: rgba(255,255,255, .05);
+  --button-outline: rgba(255, 255, 255, .10);
+  --badge-outline: rgba(255, 255, 255, .05);
   --opaque-button-border-intensity: 9;
-  --elevate-1: rgba(255,255,255, .04);
-  --elevate-2: rgba(255,255,255, .09);
+  --elevate-1: rgba(255, 255, 255, .04);
+  --elevate-2: rgba(255, 255, 255, .09);
 
   --background: 20 14% 10%;
   --foreground: 36 30% 93%;
@@ -181,6 +181,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
@@ -198,6 +199,7 @@
   }
 
   .no-default-hover-elevate {}
+
   .no-default-active-elevate {}
 
   .toggle-elevate::before,

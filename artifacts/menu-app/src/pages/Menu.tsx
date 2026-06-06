@@ -376,7 +376,8 @@ export default function Menu() {
       {/* ── Category Quick-Nav Button ── */}
       <button
         onClick={() => setDrawerOpen(true)}
-        className="fixed bottom-24 right-4 z-40 bg-orange-500 text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-sm font-bold"
+        className="fixed bottom-24 right-4 z-40 bg-orange-500 text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-sm font-bold" style={{ background: "#1a3a26" }}
+        
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />

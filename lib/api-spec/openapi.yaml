@@ -512,6 +512,12 @@ components:
           nullable: true
         price:
           type: number
+        halfPrice:
+          type: number
+          nullable: true
+        fullPrice:
+          type: number
+          nullable: true
         isVeg:
           type: boolean
         isAvailable:
@@ -547,6 +553,12 @@ components:
           nullable: true
         price:
           type: number
+        halfPrice:
+          type: number
+          nullable: true
+        fullPrice:
+          type: number
+          nullable: true
         isVeg:
           type: boolean
         isAvailable:
@@ -570,6 +582,12 @@ components:
           nullable: true
         price:
           type: number
+        halfPrice:
+          type: number
+          nullable: true
+        fullPrice:
+          type: number
+          nullable: true
         isVeg:
           type: boolean
         isAvailable:
@@ -708,3 +726,732 @@ components:
           type: string
           nullable: true
       required: [tableNumber]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# openapi: 3.1.0
+# info:
+#   # Do not change the title, if the title changes, the import paths will be broken
+#   title: Api
+#   version: 0.1.0
+#   description: API specification
+# servers:
+#   - url: /api
+#     description: Base API path
+# tags:
+#   - name: health
+#     description: Health operations
+#   - name: menu
+#     description: Public menu operations
+#   - name: admin
+#     description: Admin operations (protected)
+#   - name: settings
+#     description: Restaurant settings
+# paths:
+#   /healthz:
+#     get:
+#       operationId: healthCheck
+#       tags: [health]
+#       summary: Health check
+#       responses:
+#         "200":
+#           description: Healthy
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/HealthStatus"
+
+#   # ── Public Menu ──────────────────────────────────────────────
+#   /menu/categories:
+#     get:
+#       operationId: listCategories
+#       tags: [menu]
+#       summary: List all categories with their dishes
+#       responses:
+#         "200":
+#           description: Categories list
+#           content:
+#             application/json:
+#               schema:
+#                 type: array
+#                 items:
+#                   $ref: "#/components/schemas/CategoryWithDishes"
+
+#   /menu/dishes:
+#     get:
+#       operationId: listDishes
+#       tags: [menu]
+#       summary: List all available dishes (for search)
+#       parameters:
+#         - name: search
+#           in: query
+#           schema:
+#             type: string
+#         - name: isVeg
+#           in: query
+#           schema:
+#             type: boolean
+#         - name: categoryId
+#           in: query
+#           schema:
+#             type: integer
+#       responses:
+#         "200":
+#           description: Dishes list
+#           content:
+#             application/json:
+#               schema:
+#                 type: array
+#                 items:
+#                   $ref: "#/components/schemas/Dish"
+
+#   /menu/settings:
+#     get:
+#       operationId: getPublicSettings
+#       tags: [menu]
+#       summary: Get public restaurant settings (name, logo, WhatsApp number)
+#       responses:
+#         "200":
+#           description: Restaurant settings
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/PublicSettings"
+
+#   /menu/featured:
+#     get:
+#       operationId: listFeaturedDishes
+#       tags: [menu]
+#       summary: Get featured / chef special dishes
+#       responses:
+#         "200":
+#           description: Featured dishes
+#           content:
+#             application/json:
+#               schema:
+#                 type: array
+#                 items:
+#                   $ref: "#/components/schemas/Dish"
+
+#   # ── Admin Auth ────────────────────────────────────────────────
+#   /admin/login:
+#     post:
+#       operationId: adminLogin
+#       tags: [admin]
+#       summary: Admin login
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               $ref: "#/components/schemas/LoginRequest"
+#       responses:
+#         "200":
+#           description: Login successful
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/LoginResponse"
+#         "401":
+#           description: Invalid credentials
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/ErrorResponse"
+
+#   /admin/me:
+#     get:
+#       operationId: getAdminMe
+#       tags: [admin]
+#       summary: Get current admin info (validates token)
+#       security:
+#         - bearerAuth: []
+#       responses:
+#         "200":
+#           description: Admin info
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/AdminInfo"
+#         "401":
+#           description: Unauthorized
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/ErrorResponse"
+
+#   # ── Admin Categories ──────────────────────────────────────────
+#   /admin/categories:
+#     get:
+#       operationId: adminListCategories
+#       tags: [admin]
+#       summary: List all categories
+#       security:
+#         - bearerAuth: []
+#       responses:
+#         "200":
+#           description: Categories
+#           content:
+#             application/json:
+#               schema:
+#                 type: array
+#                 items:
+#                   $ref: "#/components/schemas/Category"
+#     post:
+#       operationId: createCategory
+#       tags: [admin]
+#       summary: Create a category
+#       security:
+#         - bearerAuth: []
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               $ref: "#/components/schemas/CreateCategoryBody"
+#       responses:
+#         "201":
+#           description: Created category
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/Category"
+
+#   /admin/categories/{id}:
+#     put:
+#       operationId: updateCategory
+#       tags: [admin]
+#       summary: Update a category
+#       security:
+#         - bearerAuth: []
+#       parameters:
+#         - name: id
+#           in: path
+#           required: true
+#           schema:
+#             type: integer
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               $ref: "#/components/schemas/CreateCategoryBody"
+#       responses:
+#         "200":
+#           description: Updated category
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/Category"
+#     delete:
+#       operationId: deleteCategory
+#       tags: [admin]
+#       summary: Delete a category
+#       security:
+#         - bearerAuth: []
+#       parameters:
+#         - name: id
+#           in: path
+#           required: true
+#           schema:
+#             type: integer
+#       responses:
+#         "200":
+#           description: Deleted
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/SuccessResponse"
+
+#   # ── Admin Dishes ──────────────────────────────────────────────
+#   /admin/dishes:
+#     get:
+#       operationId: adminListDishes
+#       tags: [admin]
+#       summary: List all dishes
+#       security:
+#         - bearerAuth: []
+#       responses:
+#         "200":
+#           description: Dishes
+#           content:
+#             application/json:
+#               schema:
+#                 type: array
+#                 items:
+#                   $ref: "#/components/schemas/Dish"
+#     post:
+#       operationId: createDish
+#       tags: [admin]
+#       summary: Create a dish
+#       security:
+#         - bearerAuth: []
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               $ref: "#/components/schemas/CreateDishBody"
+#       responses:
+#         "201":
+#           description: Created dish
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/Dish"
+
+#   /admin/dishes/{id}:
+#     put:
+#       operationId: updateDish
+#       tags: [admin]
+#       summary: Update a dish
+#       security:
+#         - bearerAuth: []
+#       parameters:
+#         - name: id
+#           in: path
+#           required: true
+#           schema:
+#             type: integer
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               $ref: "#/components/schemas/UpdateDishBody"
+#       responses:
+#         "200":
+#           description: Updated dish
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/Dish"
+#     delete:
+#       operationId: deleteDish
+#       tags: [admin]
+#       summary: Delete a dish
+#       security:
+#         - bearerAuth: []
+#       parameters:
+#         - name: id
+#           in: path
+#           required: true
+#           schema:
+#             type: integer
+#       responses:
+#         "200":
+#           description: Deleted
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/SuccessResponse"
+
+#   /admin/dishes/{id}/toggle-stock:
+#     patch:
+#       operationId: toggleDishStock
+#       tags: [admin]
+#       summary: Toggle dish availability (in/out of stock)
+#       security:
+#         - bearerAuth: []
+#       parameters:
+#         - name: id
+#           in: path
+#           required: true
+#           schema:
+#             type: integer
+#       responses:
+#         "200":
+#           description: Updated dish
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/Dish"
+
+#   # ── Admin Settings ────────────────────────────────────────────
+#   /admin/settings:
+#     get:
+#       operationId: getAdminSettings
+#       tags: [admin]
+#       summary: Get restaurant settings
+#       security:
+#         - bearerAuth: []
+#       responses:
+#         "200":
+#           description: Settings
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/RestaurantSettings"
+#     put:
+#       operationId: updateSettings
+#       tags: [admin]
+#       summary: Update restaurant settings
+#       security:
+#         - bearerAuth: []
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               $ref: "#/components/schemas/UpdateSettingsBody"
+#       responses:
+#         "200":
+#           description: Updated settings
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/RestaurantSettings"
+
+#   # ── Admin Stats ───────────────────────────────────────────────
+#   /admin/stats:
+#     get:
+#       operationId: getAdminStats
+#       tags: [admin]
+#       summary: Get dashboard stats (dish count, category count, in/out stock)
+#       security:
+#         - bearerAuth: []
+#       responses:
+#         "200":
+#           description: Stats
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/AdminStats"
+
+#   # ── QR Tables ─────────────────────────────────────────────────
+#   /admin/tables:
+#     get:
+#       operationId: listTables
+#       tags: [admin]
+#       summary: List all tables
+#       security:
+#         - bearerAuth: []
+#       responses:
+#         "200":
+#           description: Tables
+#           content:
+#             application/json:
+#               schema:
+#                 type: array
+#                 items:
+#                   $ref: "#/components/schemas/Table"
+#     post:
+#       operationId: createTable
+#       tags: [admin]
+#       summary: Create a table entry
+#       security:
+#         - bearerAuth: []
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               $ref: "#/components/schemas/CreateTableBody"
+#       responses:
+#         "201":
+#           description: Created table
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/Table"
+
+#   /admin/tables/{id}:
+#     delete:
+#       operationId: deleteTable
+#       tags: [admin]
+#       summary: Delete a table
+#       security:
+#         - bearerAuth: []
+#       parameters:
+#         - name: id
+#           in: path
+#           required: true
+#           schema:
+#             type: integer
+#       responses:
+#         "200":
+#           description: Deleted
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/SuccessResponse"
+
+# components:
+#   securitySchemes:
+#     bearerAuth:
+#       type: http
+#       scheme: bearer
+#       bearerFormat: JWT
+
+#   schemas:
+#     HealthStatus:
+#       type: object
+#       properties:
+#         status:
+#           type: string
+#       required: [status]
+
+#     ErrorResponse:
+#       type: object
+#       properties:
+#         error:
+#           type: string
+#       required: [error]
+
+#     SuccessResponse:
+#       type: object
+#       properties:
+#         success:
+#           type: boolean
+#       required: [success]
+
+#     Category:
+#       type: object
+#       properties:
+#         id:
+#           type: integer
+#         name:
+#           type: string
+#         displayOrder:
+#           type: integer
+#       required: [id, name, displayOrder]
+
+#     CategoryWithDishes:
+#       type: object
+#       properties:
+#         id:
+#           type: integer
+#         name:
+#           type: string
+#         displayOrder:
+#           type: integer
+#         dishes:
+#           type: array
+#           items:
+#             $ref: "#/components/schemas/Dish"
+#       required: [id, name, displayOrder, dishes]
+
+#     Dish:
+#       type: object
+#       properties:
+#         id:
+#           type: integer
+#         name:
+#           type: string
+#         description:
+#           type: string
+#           nullable: true
+#         price:
+#           type: number
+#         isVeg:
+#           type: boolean
+#         isAvailable:
+#           type: boolean
+#         isFeatured:
+#           type: boolean
+#         imageUrl:
+#           type: string
+#           nullable: true
+#         categoryId:
+#           type: integer
+#         categoryName:
+#           type: string
+#           nullable: true
+#       required: [id, name, price, isVeg, isAvailable, isFeatured, categoryId]
+
+#     CreateCategoryBody:
+#       type: object
+#       properties:
+#         name:
+#           type: string
+#         displayOrder:
+#           type: integer
+#       required: [name, displayOrder]
+
+#     CreateDishBody:
+#       type: object
+#       properties:
+#         name:
+#           type: string
+#         description:
+#           type: string
+#           nullable: true
+#         price:
+#           type: number
+#         isVeg:
+#           type: boolean
+#         isAvailable:
+#           type: boolean
+#         isFeatured:
+#           type: boolean
+#         imageUrl:
+#           type: string
+#           nullable: true
+#         categoryId:
+#           type: integer
+#       required: [name, price, isVeg, isAvailable, isFeatured, categoryId]
+
+#     UpdateDishBody:
+#       type: object
+#       properties:
+#         name:
+#           type: string
+#         description:
+#           type: string
+#           nullable: true
+#         price:
+#           type: number
+#         isVeg:
+#           type: boolean
+#         isAvailable:
+#           type: boolean
+#         isFeatured:
+#           type: boolean
+#         imageUrl:
+#           type: string
+#           nullable: true
+#         categoryId:
+#           type: integer
+
+#     LoginRequest:
+#       type: object
+#       properties:
+#         username:
+#           type: string
+#         password:
+#           type: string
+#       required: [username, password]
+
+#     LoginResponse:
+#       type: object
+#       properties:
+#         token:
+#           type: string
+#         username:
+#           type: string
+#       required: [token, username]
+
+#     AdminInfo:
+#       type: object
+#       properties:
+#         id:
+#           type: integer
+#         username:
+#           type: string
+#       required: [id, username]
+
+#     PublicSettings:
+#       type: object
+#       properties:
+#         restaurantName:
+#           type: string
+#         logoUrl:
+#           type: string
+#           nullable: true
+#         whatsappNumber:
+#           type: string
+#         openingHours:
+#           type: string
+#           nullable: true
+#         isOpen:
+#           type: boolean
+#         accentColor:
+#           type: string
+#           nullable: true
+#       required: [restaurantName, whatsappNumber, isOpen]
+
+#     RestaurantSettings:
+#       type: object
+#       properties:
+#         id:
+#           type: integer
+#         restaurantName:
+#           type: string
+#         logoUrl:
+#           type: string
+#           nullable: true
+#         whatsappNumber:
+#           type: string
+#         openingHours:
+#           type: string
+#           nullable: true
+#         isOpen:
+#           type: boolean
+#         accentColor:
+#           type: string
+#           nullable: true
+#       required: [id, restaurantName, whatsappNumber, isOpen]
+
+#     UpdateSettingsBody:
+#       type: object
+#       properties:
+#         restaurantName:
+#           type: string
+#         logoUrl:
+#           type: string
+#           nullable: true
+#         whatsappNumber:
+#           type: string
+#         openingHours:
+#           type: string
+#           nullable: true
+#         isOpen:
+#           type: boolean
+#         accentColor:
+#           type: string
+#           nullable: true
+
+#     AdminStats:
+#       type: object
+#       properties:
+#         totalDishes:
+#           type: integer
+#         totalCategories:
+#           type: integer
+#         inStock:
+#           type: integer
+#         outOfStock:
+#           type: integer
+#         featuredDishes:
+#           type: integer
+#         totalTables:
+#           type: integer
+#       required: [totalDishes, totalCategories, inStock, outOfStock, featuredDishes, totalTables]
+
+#     Table:
+#       type: object
+#       properties:
+#         id:
+#           type: integer
+#         tableNumber:
+#           type: string
+#         label:
+#           type: string
+#           nullable: true
+#       required: [id, tableNumber]
+
+#     CreateTableBody:
+#       type: object
+#       properties:
+#         tableNumber:
+#           type: string
+#         label:
+#           type: string
+#           nullable: true
+#       required: [tableNumber]

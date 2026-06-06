@@ -420,10 +420,16 @@ export default function Menu() {
                         return next;
                       });
                       setTimeout(() => {
-                        document
-                          .getElementById(`category-${cat.id}`)
-                          ?.scrollIntoView({ behavior: "smooth", block: "start" });
-                      }, 150);
+  const el = document.getElementById(`category-${cat.id}`);
+  if (el) {
+    const headerOffset = 130; // sticky header ki height
+    const elementPosition = el.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({
+      top: elementPosition - headerOffset,
+      behavior: "smooth",
+    });
+  }
+}, 150);
                     }}
                     className="text-left px-4 py-3 rounded-xl border border-border hover:bg-orange-50 hover:border-orange-300 transition-all"
                   >

@@ -22,6 +22,8 @@ const selectWithCategory = () =>
       name: dishesTable.name,
       description: dishesTable.description,
       price: dishesTable.price,
+      halfPrice: dishesTable.halfPrice,      // NEW
+      fullPrice: dishesTable.fullPrice,      // NEW
       isVeg: dishesTable.isVeg,
       isAvailable: dishesTable.isAvailable,
       isFeatured: dishesTable.isFeatured,
@@ -35,7 +37,11 @@ const selectWithCategory = () =>
 router.get("/admin/dishes", async (_req: Request, res: Response) => {
   try {
     const rows = await selectWithCategory();
-    res.json(rows.map((r) => ({ ...r, price: Number(r.price) })));
+    res.json(rows.map((r) => ({
+      ...r, price: Number(r.price),
+      halfPrice: r.halfPrice != null ? Number(r.halfPrice) : null,
+      fullPrice: r.fullPrice != null ? Number(r.fullPrice) : null,
+    })));
   } catch (err) {
     _req.log.error({ err });
     res.status(500).json({ error: "Internal server error" });
@@ -49,13 +55,16 @@ router.post("/admin/dishes", async (req: Request, res: Response) => {
       res.status(400).json({ error: "Invalid request body" });
       return;
     }
-    const { name, description, price, isVeg, isAvailable, isFeatured, imageUrl, categoryId } = parsed.data;
+    const { name, description, price, halfPrice,
+      fullPrice, isVeg, isAvailable, isFeatured, imageUrl, categoryId } = parsed.data;
     const [dish] = await db
       .insert(dishesTable)
       .values({
         name,
         description: description ?? null,
-        price: String(price),
+        price: String(price),                             // existing
+        halfPrice: halfPrice != null ? String(halfPrice) : null, // NEW
+        fullPrice: fullPrice != null ? String(fullPrice) : null, // NEW
         isVeg,
         isAvailable,
         isFeatured,
@@ -63,7 +72,10 @@ router.post("/admin/dishes", async (req: Request, res: Response) => {
         categoryId,
       })
       .returning();
-    res.status(201).json({ ...dish, price: Number(dish.price) });
+    res.status(201).json({
+      ...dish, price: Number(dish.price), halfPrice: dish.halfPrice != null ? Number(dish.halfPrice) : null,
+      fullPrice: dish.fullPrice != null ? Number(dish.fullPrice) : null,
+    });
   } catch (err) {
     req.log.error({ err });
     res.status(500).json({ error: "Internal server error" });
@@ -78,11 +90,18 @@ router.put("/admin/dishes/:id", async (req: Request, res: Response) => {
       res.status(400).json({ error: "Invalid request" });
       return;
     }
-    const { name, description, price, isVeg, isAvailable, isFeatured, imageUrl, categoryId } = bodyParsed.data;
+    const { name, description, price, halfPrice,
+      fullPrice, isVeg, isAvailable, isFeatured, imageUrl, categoryId } = bodyParsed.data;
     const updateData: Record<string, unknown> = {};
     if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;
     if (price !== undefined) updateData.price = String(price);
+    if (halfPrice !== undefined)
+      updateData.halfPrice =
+        halfPrice != null ? String(halfPrice) : null;
+    if (fullPrice !== undefined)
+      updateData.fullPrice =
+        fullPrice != null ? String(fullPrice) : null;
     if (isVeg !== undefined) updateData.isVeg = isVeg;
     if (isAvailable !== undefined) updateData.isAvailable = isAvailable;
     if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
@@ -98,7 +117,11 @@ router.put("/admin/dishes/:id", async (req: Request, res: Response) => {
       res.status(404).json({ error: "Dish not found" });
       return;
     }
-    res.json({ ...dish, price: Number(dish.price) });
+    res.json({
+      ...dish, price: Number(dish.price),
+      halfPrice: dish.halfPrice != null ? Number(dish.halfPrice) : null,
+      fullPrice: dish.fullPrice != null ? Number(dish.fullPrice) : null,
+    });
   } catch (err) {
     req.log.error({ err });
     res.status(500).json({ error: "Internal server error" });
@@ -137,7 +160,11 @@ router.patch("/admin/dishes/:id/toggle-stock", async (req: Request, res: Respons
       .set({ isAvailable: !current.isAvailable })
       .where(eq(dishesTable.id, Number(parsed.data.id)))
       .returning();
-    res.json({ ...dish, price: Number(dish.price) });
+    res.json({
+      ...dish, price: Number(dish.price),
+      halfPrice: dish.halfPrice != null ? Number(dish.halfPrice) : null,
+      fullPrice: dish.fullPrice != null ? Number(dish.fullPrice) : null,
+    });
   } catch (err) {
     req.log.error({ err });
     res.status(500).json({ error: "Internal server error" });

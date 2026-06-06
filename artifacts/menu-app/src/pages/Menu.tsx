@@ -17,6 +17,7 @@ export default function Menu() {
   const [searchQuery, setSearchQuery] = useState("");
   const [vegFilter, setVegFilter] = useState<"all" | "veg" | "nonveg">("all");
   const [cartOpen, setCartOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false); // ✅ 
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const cartRef = useRef<HTMLDivElement>(null);
 
@@ -185,7 +186,7 @@ export default function Menu() {
               (categories.data ?? []).map((cat) => {
                 const catDishes = filteredDishes(cat.dishes ?? []);
                 return (
-                  <div key={cat.id} className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+                  <div key={cat.id} id={`category-${cat.id}`} className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
                     <button
                       onClick={() => toggleCategory(cat.id)}
                       data-testid={`button-category-${cat.id}`}
@@ -327,7 +328,76 @@ export default function Menu() {
           </div>
         </div>
       )}
+
+            {/* ── Category Quick-Nav Button ── */}
+      <button
+        onClick={() => setDrawerOpen(true)}
+        className="fixed bottom-24 right-4 z-40 bg-orange-500 text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-sm font-bold"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+        Menu
+      </button>
+
+      {/* ── Category Drawer ── */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setDrawerOpen(false)}
+          />
+          {/* Sheet */}
+          <div className="relative bg-card rounded-t-3xl max-h-[70vh] overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-card border-b border-border px-5 py-4 flex items-center justify-between">
+              <h2 className="font-bold text-xl text-foreground">Categories</h2>
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className="p-2 rounded-full hover:bg-muted transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            {/* Grid */}
+            <div className="p-4 grid grid-cols-2 gap-3">
+              {(categories.data ?? []).map((cat) => {
+                const count = filteredDishes(cat.dishes ?? []).length;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      setDrawerOpen(false);
+                      // category expand karo agar band hai
+                      setExpandedCategories((prev) => {
+                        const next = new Set(prev);
+                        next.add(cat.id);
+                        return next;
+                      });
+                      setTimeout(() => {
+                        document
+                          .getElementById(`category-${cat.id}`)
+                          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }, 150);
+                    }}
+                    className="text-left px-4 py-3 rounded-xl border border-border hover:bg-orange-50 hover:border-orange-300 transition-all"
+                  >
+                    <p className="font-semibold text-foreground text-sm leading-tight">
+                      {cat.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {count} items
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+    
   );
 }
 

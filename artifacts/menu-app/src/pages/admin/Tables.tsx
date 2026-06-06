@@ -46,8 +46,10 @@ export default function AdminTables() {
   };
 
   const showQR = async (tableNumber: string, label: string | null | undefined) => {
-    const menuUrl = `${window.location.origin}/menu?table=${tableNumber}`;
-    const dataUrl = await QRCode.toDataURL(menuUrl, { width: 300, margin: 2, color: { dark: "#1a1a1a", light: "#ffffff" } });
+    //const menuUrl = `${window.location.origin}/menu?table=${tableNumber}`;
+    // ✅ Sahi — pehle landing pe aaye, phir menu
+    const qrUrl = `${window.location.origin}/?table=${tableNumber}`;
+    const dataUrl = await QRCode.toDataURL(qrUrl, { width: 300, margin: 2, color: { dark: "#1a1a1a", light: "#ffffff" } });
     setQrModal({ tableNumber, label, dataUrl });
   };
 

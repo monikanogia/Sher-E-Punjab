@@ -10,6 +10,8 @@ export interface CreateDishBody {
   name: string;
   description?: string | null;
   price: number;
+  halfPrice?: number | null;   // ✅ YEH ADD KRO
+  fullPrice?: number | null;   // ✅ YEH ADD KRO
   isVeg: boolean;
   isAvailable: boolean;
   isFeatured: boolean;

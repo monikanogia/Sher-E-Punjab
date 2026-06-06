@@ -7,6 +7,7 @@ import {
   ChevronDown, ChevronUp, Utensils, MessageCircle, Star
 } from "lucide-react";
 import type { Dish } from "@workspace/api-client-react";
+import type { DishVariant } from "@/contexts/CartContext";
 
 export default function Menu() {
   const search = useSearch();
@@ -44,8 +45,9 @@ export default function Menu() {
     });
   };
 
-  const getQtyInCart = (dishId: number) =>
-    items.find((i) => i.dishId === dishId)?.quantity ?? 0;
+  const getQtyInCart = (dishId: number, variant: DishVariant) =>
+    items.find((i) => i.dishId === dishId && i.variant === variant)?.quantity ??
+    0;
 
   const placeOrder = () => {
     if (items.length === 0) return;
@@ -69,6 +71,8 @@ export default function Menu() {
       return true;
     });
   };
+
+
 
   const allFilteredDishes = dishes ?? [];
 
@@ -123,20 +127,19 @@ export default function Menu() {
 
           {/* Filters */}
           <div className="flex gap-2">
-            {[["all", "All"], ["veg", "Veg"], ["nonveg", "Non-Veg"]] .map(([val, label]) => (
+            {[["all", "All"], ["veg", "Veg"], ["nonveg", "Non-Veg"]].map(([val, label]) => (
               <button
                 key={val}
                 onClick={() => setVegFilter(val as typeof vegFilter)}
                 data-testid={`button-filter-${val}`}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                  vegFilter === val
-                    ? val === "veg"
-                      ? "bg-green-500 text-white border-green-500"
-                      : val === "nonveg"
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${vegFilter === val
+                  ? val === "veg"
+                    ? "bg-green-500 text-white border-green-500"
+                    : val === "nonveg"
                       ? "bg-red-500 text-white border-red-500"
                       : "bg-primary text-primary-foreground border-primary"
-                    : "bg-background text-muted-foreground border-border hover:border-primary hover:text-primary"
-                }`}
+                  : "bg-background text-muted-foreground border-border hover:border-primary hover:text-primary"
+                  }`}
               >
                 {val === "veg" && <Leaf className="h-3 w-3" />}
                 {val === "nonveg" && <Flame className="h-3 w-3" />}
@@ -154,7 +157,15 @@ export default function Menu() {
             <p className="text-sm text-muted-foreground mb-4">{allFilteredDishes.length} results for "{searchQuery}"</p>
             <div className="space-y-3">
               {allFilteredDishes.map((dish) => (
-                <DishCard key={dish.id} dish={dish} qty={getQtyInCart(dish.id)} addItem={addItem} updateQuantity={updateQuantity} />
+                <DishCard
+                  key={dish.id}
+                  dish={dish}
+                  qtyDefault={getQtyInCart(dish.id, "DEFAULT")}
+                  qtyHalf={getQtyInCart(dish.id, "HALF")}
+                  qtyFull={getQtyInCart(dish.id, "FULL")}
+                  addItem={addItem}
+                  updateQuantity={updateQuantity}
+                />
               ))}
               {allFilteredDishes.length === 0 && (
                 <div className="text-center py-12 text-muted-foreground">
@@ -200,7 +211,15 @@ export default function Menu() {
                           <p className="px-4 py-6 text-center text-sm text-muted-foreground">No items available</p>
                         ) : (
                           catDishes.map((dish) => (
-                            <DishCard key={dish.id} dish={dish} qty={getQtyInCart(dish.id)} addItem={addItem} updateQuantity={updateQuantity} />
+                            <DishCard
+                              key={dish.id}
+                              dish={dish}
+                              qtyDefault={getQtyInCart(dish.id, "DEFAULT")}
+                              qtyHalf={getQtyInCart(dish.id, "HALF")}
+                              qtyFull={getQtyInCart(dish.id, "FULL")}
+                              addItem={addItem}
+                              updateQuantity={updateQuantity}
+                            />
                           ))
                         )}
                       </div>
@@ -247,29 +266,39 @@ export default function Menu() {
 
             <div className="px-5 py-4 space-y-4">
               {items.map((item) => (
-                <div key={item.dishId} data-testid={`cart-item-${item.dishId}`} className="flex items-center justify-between gap-4">
+                <div
+                  key={`${item.dishId}-${item.variant}`}
+                  data-testid={`cart-item-${item.dishId}-${item.variant.toLowerCase()}`}
+                  className="flex items-center justify-between gap-4"
+                >
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-foreground truncate">{item.name}</p>
                     <p className="text-sm text-primary font-medium">₹{item.price} each</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => updateQuantity(item.dishId, item.quantity - 1)}
-                      data-testid={`button-decrease-${item.dishId}`}
+                      onClick={() =>
+                        updateQuantity(item.dishId, item.variant, item.quantity - 1)
+                      }
+                      data-testid={`button-decrease-${item.dishId}-${item.variant.toLowerCase()}`}
                       className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
                     <span className="w-6 text-center font-bold">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.dishId, item.quantity + 1)}
-                      data-testid={`button-increase-${item.dishId}`}
+                      onClick={() =>
+                        updateQuantity(item.dishId, item.variant, item.quantity + 1)
+                      }
+                      data-testid={`button-increase-${item.dishId}-${item.variant.toLowerCase()}`}
                       className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
-                  <span className="font-bold text-foreground w-16 text-right">₹{item.price * item.quantity}</span>
+                  <span className="font-bold text-foreground w-16 text-right">
+                    ₹{item.price * item.quantity}
+                  </span>
                 </div>
               ))}
 
@@ -304,17 +333,35 @@ export default function Menu() {
 
 function DishCard({
   dish,
-  qty,
+  qtyDefault,
+  qtyHalf,
+  qtyFull,
   addItem,
   updateQuantity,
 }: {
   dish: Dish;
-  qty: number;
-  addItem: (d: { id: number; name: string; price: number }) => void;
-  updateQuantity: (id: number, qty: number) => void;
+  qtyDefault: number;
+  qtyHalf: number;
+  qtyFull: number;
+  addItem: (d: {
+    id: number;
+    name: string;
+    price: number;
+    variant?: DishVariant;
+  }) => void;
+  updateQuantity: (id: number, variant: DishVariant, qty: number) => void;
 }) {
+  const hasHalf = dish.halfPrice != null;
+  const hasFull = dish.fullPrice != null;
+
+  // fallback old behaviour ke liye
+  const showDefault = !hasHalf && !hasFull;
+
   return (
-    <div data-testid={`card-dish-${dish.id}`} className="flex gap-4 p-4 hover:bg-muted/20 transition-colors">
+    <div
+      data-testid={`card-dish-${dish.id}`}
+      className="flex gap-4 p-4 hover:bg-muted/20 transition-colors"
+    >
       {/* Dish info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
@@ -329,56 +376,149 @@ function DishCard({
           )}
           {dish.isFeatured && (
             <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full flex items-center gap-1">
-              <Star className="h-2.5 w-2.5" /> Chef's Special
+              <Star className="h-2.5 w-2.5" /> Chef&apos;s Special
             </span>
           )}
         </div>
-        <h3 className="font-semibold text-foreground text-sm leading-tight">{dish.name}</h3>
+        <h3 className="font-semibold text-foreground text-sm leading-tight">
+          {dish.name}
+        </h3>
         {dish.description && (
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{dish.description}</p>
+          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+            {dish.description}
+          </p>
         )}
-        <p className="font-bold text-primary mt-2 text-sm">₹{dish.price}</p>
+
+        {/* Prices + controls */}
+        <div className="mt-2 space-y-1">
+          {hasHalf && (
+            <VariantRow
+              label="Half"
+              price={dish.halfPrice as number}
+              qty={qtyHalf}
+              onAdd={() =>
+                addItem({
+                  id: dish.id,
+                  name: `${dish.name} (Half)`,
+                  price: dish.halfPrice as number,
+                  variant: "HALF",
+                })
+              }
+              onChangeQty={(newQty) =>
+                updateQuantity(dish.id, "HALF", newQty)
+              }
+            />
+          )}
+
+          {hasFull && (
+            <VariantRow
+              label="Full"
+              price={dish.fullPrice as number}
+              qty={qtyFull}
+              onAdd={() =>
+                addItem({
+                  id: dish.id,
+                  name: `${dish.name} (Full)`,
+                  price: dish.fullPrice as number,
+                  variant: "FULL",
+                })
+              }
+              onChangeQty={(newQty) =>
+                updateQuantity(dish.id, "FULL", newQty)
+              }
+            />
+          )}
+
+          {showDefault && (
+            <VariantRow
+              label={undefined}
+              price={dish.price}
+              qty={qtyDefault}
+              onAdd={() =>
+                addItem({
+                  id: dish.id,
+                  name: dish.name,
+                  price: dish.price,
+                  variant: "DEFAULT",
+                })
+              }
+              onChangeQty={(newQty) =>
+                updateQuantity(dish.id, "DEFAULT", newQty)
+              }
+            />
+          )}
+        </div>
       </div>
 
-      {/* Image & add button */}
+      {/* Image */}
       <div className="flex-shrink-0 flex flex-col items-center gap-2">
         <div className="w-24 h-20 rounded-xl overflow-hidden bg-muted relative">
           {dish.imageUrl ? (
-            <img src={dish.imageUrl} alt={dish.name} className="w-full h-full object-cover" />
+            <img
+              src={dish.imageUrl}
+              alt={dish.name}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <Utensils className="h-8 w-8 text-muted-foreground/30" />
             </div>
           )}
         </div>
-        {qty === 0 ? (
-          <button
-            onClick={() => addItem({ id: dish.id, name: dish.name, price: dish.price })}
-            data-testid={`button-add-${dish.id}`}
-            className="w-24 py-1.5 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:opacity-90 transition-opacity"
-          >
-            ADD
-          </button>
-        ) : (
-          <div className="flex items-center gap-1.5 w-24 justify-between">
-            <button
-              onClick={() => updateQuantity(dish.id, qty - 1)}
-              data-testid={`button-decrease-dish-${dish.id}`}
-              className="w-7 h-7 rounded-lg border border-primary text-primary flex items-center justify-center hover:bg-primary/10 transition-colors"
-            >
-              <Minus className="h-3 w-3" />
-            </button>
-            <span className="font-bold text-primary text-sm w-4 text-center">{qty}</span>
-            <button
-              onClick={() => updateQuantity(dish.id, qty + 1)}
-              data-testid={`button-increase-dish-${dish.id}`}
-              className="w-7 h-7 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity"
-            >
-              <Plus className="h-3 w-3" />
-            </button>
-          </div>
+      </div>
+    </div>
+  );
+}
+
+function VariantRow({
+  label,
+  price,
+  qty,
+  onAdd,
+  onChangeQty,
+}: {
+  label?: string;
+  price: number;
+  qty: number;
+  onAdd: () => void;
+  onChangeQty: (qty: number) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-baseline gap-2">
+        <p className="font-bold text-primary text-sm">₹{price}</p>
+        {label && (
+          <span className="text-[11px] text-muted-foreground uppercase tracking-wide">
+            {label}
+          </span>
         )}
       </div>
+      {qty === 0 ? (
+        <button
+          onClick={onAdd}
+          className="px-3 py-1.5 bg-primary text-primary-foreground text-[11px] font-bold rounded-lg hover:opacity-90 transition-opacity"
+        >
+          ADD
+        </button>
+      ) : (
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => onChangeQty(qty - 1)}
+            className="w-7 h-7 rounded-lg border border-primary text-primary flex items-center justify-center hover:bg-primary/10 transition-colors"
+          >
+            <Minus className="h-3 w-3" />
+          </button>
+          <span className="font-bold text-primary text-sm w-4 text-center">
+            {qty}
+          </span>
+          <button
+            onClick={() => onChangeQty(qty + 1)}
+            className="w-7 h-7 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity"
+          >
+            <Plus className="h-3 w-3" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

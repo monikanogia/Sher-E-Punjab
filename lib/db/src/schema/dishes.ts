@@ -8,6 +8,8 @@ export const dishesTable = pgTable("dishes", {
   name: text("name").notNull(),
   description: text("description"),
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  halfPrice: numeric("half_price", { precision: 10, scale: 2 }),
+  fullPrice: numeric("full_price", { precision: 10, scale: 2 }),
   isVeg: boolean("is_veg").notNull().default(true),
   isAvailable: boolean("is_available").notNull().default(true),
   isFeatured: boolean("is_featured").notNull().default(false),

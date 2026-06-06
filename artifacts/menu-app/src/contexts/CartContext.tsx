@@ -1,17 +1,25 @@
 import { createContext, useContext, useState, useCallback } from "react";
 
+export type DishVariant = "DEFAULT" | "HALF" | "FULL";
+
+
+
 export interface CartItem {
   dishId: number;
   name: string;
   price: number;
   quantity: number;
+  variant: DishVariant;
+
 }
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (dish: { id: number; name: string; price: number }) => void;
-  removeItem: (dishId: number) => void;
-  updateQuantity: (dishId: number, qty: number) => void;
+  addItem: (dish: {
+    id: number; name: string; price: number; variant?: DishVariant;
+  }) => void;
+  removeItem: (dishId: number, variant: DishVariant) => void;
+  updateQuantity: (dishId: number, variant: DishVariant, qty: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -22,27 +30,42 @@ const CartContext = createContext<CartContextType | null>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  const addItem = useCallback((dish: { id: number; name: string; price: number }) => {
+  const addItem = useCallback((dish: { id: number; name: string; price: number; variant?: DishVariant; }) => {
+    const variant: DishVariant = dish.variant ?? "DEFAULT";
     setItems((prev) => {
-      const existing = prev.find((i) => i.dishId === dish.id);
+      const existing = prev.find((i) => i.dishId === dish.id && i.variant === variant);
       if (existing) {
-        return prev.map((i) => i.dishId === dish.id ? { ...i, quantity: i.quantity + 1 } : i);
+        return prev.map((i) => i.dishId === dish.id && i.variant === variant ? { ...i, quantity: i.quantity + 1 } : i);
       }
-      return [...prev, { dishId: dish.id, name: dish.name, price: dish.price, quantity: 1 }];
+      return [...prev, { dishId: dish.id, name: dish.name, price: dish.price, quantity: 1, variant, },
+      ];
     });
   }, []);
 
-  const removeItem = useCallback((dishId: number) => {
-    setItems((prev) => prev.filter((i) => i.dishId !== dishId));
+  const removeItem = useCallback((dishId: number, variant: DishVariant) => {
+    setItems((prev) =>
+      prev.filter((i) => !(i.dishId === dishId && i.variant === variant))
+    );
   }, []);
 
-  const updateQuantity = useCallback((dishId: number, qty: number) => {
-    if (qty <= 0) {
-      setItems((prev) => prev.filter((i) => i.dishId !== dishId));
-    } else {
-      setItems((prev) => prev.map((i) => i.dishId === dishId ? { ...i, quantity: qty } : i));
-    }
-  }, []);
+  const updateQuantity = useCallback(
+    (dishId: number, variant: DishVariant, qty: number) => {
+      if (qty <= 0) {
+        setItems((prev) =>
+          prev.filter((i) => !(i.dishId === dishId && i.variant === variant))
+        );
+      } else {
+        setItems((prev) =>
+          prev.map((i) =>
+            i.dishId === dishId && i.variant === variant
+              ? { ...i, quantity: qty }
+              : i
+          )
+        );
+      }
+    },
+    []
+  );
 
   const clearCart = useCallback(() => setItems([]), []);
 

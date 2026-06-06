@@ -11,8 +11,11 @@ import {
   ArrowLeft, Plus, Pencil, Trash2, Utensils, Leaf, Flame, Star, X
 } from "lucide-react";
 
-const EMPTY_FORM: Omit<CreateDishBody, "isVeg" | "isAvailable" | "isFeatured"> & { isVeg: boolean; isAvailable: boolean; isFeatured: boolean } = {
-  name: "", description: "", price: 0, isVeg: true, isAvailable: true,
+const EMPTY_FORM: Omit<CreateDishBody, "isVeg" | "isAvailable" | "isFeatured"> & {
+  isVeg: boolean; isAvailable: boolean; isFeatured: boolean
+} = {
+  name: "", description: "", price: 0, halfPrice: undefined,
+  fullPrice: undefined, isVeg: true, isAvailable: true,
   isFeatured: false, imageUrl: "", categoryId: 0,
 };
 
@@ -46,6 +49,8 @@ export default function AdminDishes() {
       name: dish.name,
       description: dish.description ?? "",
       price: dish.price,
+      halfPrice: dish.halfPrice ?? undefined,
+      fullPrice: dish.fullPrice ?? undefined,
       isVeg: dish.isVeg,
       isAvailable: dish.isAvailable,
       isFeatured: dish.isFeatured,
@@ -57,16 +62,52 @@ export default function AdminDishes() {
 
   const handleSubmit = () => {
     if (!form.name.trim() || !form.categoryId) return;
-    const payload = {
+
+    // Strong validation: fullPrice required, > 0
+    const fullPriceValue =
+      form.fullPrice != null && form.fullPrice > 0 ? form.fullPrice : null;
+    if (!fullPriceValue) {
+      alert("Please enter a valid Full Price");
+      return;
+    }
+
+    // Base price jo API ke 'price' field me jayega:
+    // - hammesha full price hi rakhenge taaki old clients consistent rahein
+    const basePrice = fullPriceValue;
+
+    const payload: CreateDishBody = {
       ...form,
       description: form.description || null,
       imageUrl: form.imageUrl || null,
-      price: Number(form.price),
+      // important: API ke required 'price' field ko yaha set kar rahe hain
+      price: basePrice,
+      // Optional fields ko clean karo: "" -> undefined
+      halfPrice:
+        form.halfPrice != null
+          ? form.halfPrice
+          : undefined,
+      fullPrice: Number(fullPriceValue),
     };
+
     if (editDish) {
-      updateMutation.mutate({ id: editDish.id, data: payload }, { onSuccess: () => { setShowForm(false); setEditDish(null); } });
+      updateMutation.mutate(
+        { id: editDish.id, data: payload },
+        {
+          onSuccess: () => {
+            setShowForm(false);
+            setEditDish(null);
+          },
+        }
+      );
     } else {
-      createMutation.mutate({ data: payload }, { onSuccess: () => { setShowForm(false); } });
+      createMutation.mutate(
+        { data: payload },
+        {
+          onSuccess: () => {
+            setShowForm(false);
+          },
+        }
+      );
     }
   };
 
@@ -157,29 +198,93 @@ export default function AdminDishes() {
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-foreground mb-1.5">Price (₹) *</label>
-                  <input
-                    type="number"
-                    value={form.price}
-                    onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-primary text-base"
-                    data-testid="input-dish-price"
-                    min={0}
-                  />
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* FULL PRICE (required) */}
+                  <div>
+                    <label className="block font-semibold text-foreground mb-1.5">
+                      Full Price (₹) *
+                    </label>
+                    <input
+                      type="number"
+                      value={form.fullPrice ?? ""}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          fullPrice:
+                            e.target.value === "" ? undefined : Number(e.target.value),
+                        })
+                      }
+                      className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-primary text-base"
+                      data-testid="input-dish-full-price"
+                      min={0}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Ye hi default full plate price hai (aur old clients ke liye bhi yahi use hoga).
+                    </p>
+                  </div>
+
+                  {/* CATEGORY */}
+                  <div>
+                    <label className="block font-semibold text-foreground mb-1.5">
+                      Category *
+                    </label>
+                    <select
+                      value={form.categoryId}
+                      onChange={(e) =>
+                        setForm({ ...form, categoryId: Number(e.target.value) })
+                      }
+                      className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-primary text-base"
+                      data-testid="select-dish-category"
+                    >
+                      <option value={0}>Select...</option>
+                      {(cats.data ?? []).map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block font-semibold text-foreground mb-1.5">Category *</label>
-                  <select
-                    value={form.categoryId}
-                    onChange={(e) => setForm({ ...form, categoryId: Number(e.target.value) })}
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-primary text-base"
-                    data-testid="select-dish-category"
-                  >
-                    <option value={0}>Select...</option>
-                    {(cats.data ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* HALF PRICE (optional) */}
+                  <div>
+                    <label className="block font-semibold text-foreground mb-1.5">
+                      Half Price (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={form.halfPrice ?? ""}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          halfPrice:
+                            e.target.value === "" ? undefined : Number(e.target.value),
+                        })
+                      }
+                      className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:border-primary text-base"
+                      data-testid="input-dish-half-price"
+                      min={0}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Optional hai, nai diya to sirf full plate dikhegi.
+                    </p>
+                  </div>
+
+                  {/* RIGHT SIDE helper / empty space */}
+                  <div className="flex items-end">
+                    <p className="text-xs text-muted-foreground">
+                      Tip: Agar sirf full plate chahiye to sirf Full Price bharo, Half empty chhod do.
+                    </p>
+                  </div>
                 </div>
+
+
+
+
+                
+
               </div>
               <div>
                 <label className="block font-semibold text-foreground mb-1.5">Image URL</label>

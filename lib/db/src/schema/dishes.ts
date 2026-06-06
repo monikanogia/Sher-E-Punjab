@@ -20,3 +20,5 @@ export const dishesTable = pgTable("dishes", {
 export const insertDishSchema = createInsertSchema(dishesTable).omit({ id: true });
 export type InsertDish = z.infer<typeof insertDishSchema>;
 export type Dish = typeof dishesTable.$inferSelect;
+
+

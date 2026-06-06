@@ -5,13 +5,17 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-
 export interface UpdateDishBody {
   name?: string;
   description?: string | null;
   price?: number;
+<<<<<<< HEAD
   halfPrice?: number | null;
   fullPrice?: number | null;
+=======
+  halfPrice?: number | null;   // ✅ YEH ADD KRO
+  fullPrice?: number | null;   // ✅ YEH ADD KRO
+>>>>>>> ffdd1f9be5322a267d773c13075d8820e2070ebe
   isVeg?: boolean;
   isAvailable?: boolean;
   isFeatured?: boolean;

@@ -10,6 +10,8 @@ export const settingsTable = pgTable("restaurant_settings", {
   openingHours: text("opening_hours"),
   isOpen: boolean("is_open").notNull().default(true),
   accentColor: text("accent_color"),
+  upiId: text("upi_id"),              // ← ADD THIS
+  upiQrUrl: text("upi_qr_url"),
 });
 
 export const insertSettingsSchema = createInsertSchema(settingsTable).omit({ id: true });

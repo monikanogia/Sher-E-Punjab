@@ -80,6 +80,8 @@ router.get("/menu/settings", async (_req: Request, res: Response) => {
         openingHours: null,
         isOpen: true,
         accentColor: null,
+        upiId: null,        // <-- YEH ADD KIYA
+        upiQrUrl: null,
       });
       return;
     }
@@ -90,6 +92,8 @@ router.get("/menu/settings", async (_req: Request, res: Response) => {
       openingHours: settings.openingHours ?? null,
       isOpen: settings.isOpen,
       accentColor: settings.accentColor ?? null,
+      upiId: settings.upiId ?? null,       // <-- YEH ADD KIYA
+      upiQrUrl: settings.upiQrUrl ?? null, // <-- YEH ADD KIYA
     });
   } catch (err) {
     _req.log.error({ err }, "Failed to get settings");

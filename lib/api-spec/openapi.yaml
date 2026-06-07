@@ -645,6 +645,12 @@ components:
         accentColor:
           type: string
           nullable: true
+        upiId:                             # ← ADD
+          type: string
+          nullable: true
+        upiQrUrl:                          # ← ADD
+          type: string
+          nullable: true
       required: [restaurantName, whatsappNumber, isOpen]
 
     RestaurantSettings:
@@ -667,6 +673,12 @@ components:
         accentColor:
           type: string
           nullable: true
+        upiId:                             # ← ADD
+          type: string
+          nullable: true
+        upiQrUrl:                          # ← ADD
+          type: string
+          nullable: true
       required: [id, restaurantName, whatsappNumber, isOpen]
 
     UpdateSettingsBody:
@@ -685,6 +697,12 @@ components:
         isOpen:
           type: boolean
         accentColor:
+          type: string
+          nullable: true
+        upiId:                             # ← ADD
+          type: string
+          nullable: true
+        upiQrUrl:                          # ← ADD
           type: string
           nullable: true
 

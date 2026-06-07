@@ -15,6 +15,7 @@ export default function Menu() {
   const tableId = params.get("table") ?? "1";
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [payOpen, setPayOpen] = useState(false);
   const [vegFilter, setVegFilter] = useState<"all" | "veg" | "nonveg">("all");
   const [cartOpen, setCartOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false); // ✅ 
@@ -23,6 +24,7 @@ export default function Menu() {
 
   const categories = useListCategories();
   const settings = useGetPublicSettings();
+  console.log("🔥 MERI SETTINGS:", settings.data);
   const { data: dishes } = useListDishes({
     search: searchQuery || undefined,
     isVeg: vegFilter === "veg" ? true : vegFilter === "nonveg" ? false : undefined,
@@ -98,6 +100,15 @@ export default function Menu() {
                 <Phone className="h-3.5 w-3.5" />
                 Call Waiter
               </button>
+
+              <button
+                onClick={() => setPayOpen(true)}
+                className="flex items-center gap-1.5 text-white px-3 py-2 rounded-full text-xs font-semibold transition-colors shadow-sm"
+                style={{ background: "#1a3a26" }}
+              >
+                💳 Pay Now
+              </button>
+
               <button
                 onClick={() => setCartOpen(true)}
                 data-testid="button-open-cart"
@@ -143,7 +154,7 @@ export default function Menu() {
                   }`}
               >
                 {val === "veg" && <Leaf className="h-3 w-3" />}
-               {/* val === "nonveg" && <Flame className="h-3 w-3" /> */}
+                {/* val === "nonveg" && <Flame className="h-3 w-3" /> */}
                 {label}
               </button>
             ))}
@@ -373,11 +384,72 @@ export default function Menu() {
         </div>
       )}
 
+      {payOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/50" onClick={() => setPayOpen(false)} />
+
+          {/* Sheet */}
+          <div className="relative bg-card rounded-t-3xl overflow-y-auto">
+
+            {/* Header */}
+            <div className="sticky top-0 bg-card border-b border-border px-5 py-4 flex items-center justify-between">
+              <div>
+                <h2 className="font-bold text-xl text-foreground">Pay Now</h2>
+                <p className="text-xs text-muted-foreground">Table {tableId}</p>
+              </div>
+              <button onClick={() => setPayOpen(false)} className="p-2 rounded-full hover:bg-muted transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="px-5 py-6 flex flex-col items-center gap-6">
+
+              {/* QR Code */}
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-sm text-muted-foreground font-medium">Scan & Pay</p>
+                <div className="p-3 bg-white rounded-2xl border border-border shadow-sm">
+                  <img
+                    src={settings.data?.upiQrUrl ?? "/upi-qr.png"}
+                    alt="UPI QR Code"
+                    className="w-52 h-52 object-contain"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  PhonePe · GPay · Paytm · Any UPI App
+                </p>
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 w-full">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-xs text-muted-foreground">OR</span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+
+              {/* UPI Deep Link Button */}
+              <a
+                href={`upi://pay?pa=${settings.data?.upiId ?? ""}&pn=${encodeURIComponent(restaurantName)}&cu=INR`}
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-white text-base shadow-lg"
+                style={{ background: "#1a3a26" }}
+              >
+                📲 Open UPI App to Pay
+              </a>
+
+              <p className="text-xs text-center text-muted-foreground px-4">
+                UPI ID: <span className="font-semibold text-foreground">{settings.data?.upiId ?? "Not set"}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* ── Category Quick-Nav Button ── */}
       <button
         onClick={() => setDrawerOpen(true)}
         className="fixed bottom-24 right-4 z-40 bg-orange-500 text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-sm font-bold" style={{ background: "#1a3a26" }}
-        
+
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />

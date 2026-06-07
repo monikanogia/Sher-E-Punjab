@@ -98,6 +98,8 @@ export interface PublicSettings {
   openingHours?: string | null;
   isOpen: boolean;
   accentColor?: string | null;
+  upiId?: string | null;
+  upiQrUrl?: string | null;
 }
 
 export interface RestaurantSettings {
@@ -108,6 +110,8 @@ export interface RestaurantSettings {
   openingHours?: string | null;
   isOpen: boolean;
   accentColor?: string | null;
+  upiId?: string | null;
+  upiQrUrl?: string | null;
 }
 
 export interface UpdateSettingsBody {
@@ -117,6 +121,8 @@ export interface UpdateSettingsBody {
   openingHours?: string | null;
   isOpen?: boolean;
   accentColor?: string | null;
+  upiId?: string | null;
+  upiQrUrl?: string | null;
 }
 
 export interface AdminStats {

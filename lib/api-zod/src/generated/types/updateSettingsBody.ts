@@ -13,4 +13,6 @@ export interface UpdateSettingsBody {
   openingHours?: string | null;
   isOpen?: boolean;
   accentColor?: string | null;
+  upiId?: string | null;        // ← ADD
+  upiQrUrl?: string | null;     // ← 
 }

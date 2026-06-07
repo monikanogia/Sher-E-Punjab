@@ -76,7 +76,9 @@ export const GetPublicSettingsResponse = zod.object({
   "whatsappNumber": zod.string(),
   "openingHours": zod.string().nullish(),
   "isOpen": zod.boolean(),
-  "accentColor": zod.string().nullish()
+  "accentColor": zod.string().nullish(),
+   "upiId": zod.string().nullish(),        // ← ADD
+  "upiQrUrl": zod.string().nullish() 
 })
 
 
@@ -292,7 +294,9 @@ export const GetAdminSettingsResponse = zod.object({
   "whatsappNumber": zod.string(),
   "openingHours": zod.string().nullish(),
   "isOpen": zod.boolean(),
-  "accentColor": zod.string().nullish()
+  "accentColor": zod.string().nullish(),
+  "upiId": zod.string().nullish(),        // ← ADD
+  "upiQrUrl": zod.string().nullish()    
 })
 
 
@@ -305,7 +309,10 @@ export const UpdateSettingsBody = zod.object({
   "whatsappNumber": zod.string().optional(),
   "openingHours": zod.string().nullish(),
   "isOpen": zod.boolean().optional(),
-  "accentColor": zod.string().nullish()
+  "accentColor": zod.string().nullish(),
+ // Niche wali 2 lines add karni hain
+  upiId: zod.string().nullable().optional(),
+  upiQrUrl: zod.string().nullable().optional(),
 })
 
 export const UpdateSettingsResponse = zod.object({
@@ -315,7 +322,9 @@ export const UpdateSettingsResponse = zod.object({
   "whatsappNumber": zod.string(),
   "openingHours": zod.string().nullish(),
   "isOpen": zod.boolean(),
-  "accentColor": zod.string().nullish()
+  "accentColor": zod.string().nullish(), // ✅ Yahan comma laga diya
+  "upiId": zod.string().nullish(),       // ✅ .nullish() use karo (nullable().optional() ki jagah, consistency ke liye)
+  "upiQrUrl": zod.string().nullish()     // ✅
 })
 
 

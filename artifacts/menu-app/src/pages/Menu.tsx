@@ -546,8 +546,10 @@ function DishCard({
 }) {
   const hasHalf = dish.halfPrice != null;
   const hasFull = dish.fullPrice != null;
+  
+  // LOGIC: Agar dono hain tabhi label "Half" ya "Full" dikhao, warna empty string
+  const showLabels = hasHalf && hasFull;
 
-  // fallback old behaviour ke liye
   const showDefault = !hasHalf && !hasFull;
 
   return (
@@ -555,7 +557,6 @@ function DishCard({
       data-testid={`card-dish-${dish.id}`}
       className="flex gap-4 p-4 hover:bg-muted/20 transition-colors"
     >
-      {/* Dish info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           {dish.isVeg ? (
@@ -582,11 +583,10 @@ function DishCard({
           </p>
         )}
 
-        {/* Prices + controls */}
         <div className="mt-2 space-y-1">
           {hasHalf && (
             <VariantRow
-              label="Half"
+              label={showLabels ? "Half" : undefined}
               price={dish.halfPrice as number}
               qty={qtyHalf}
               onAdd={() =>
@@ -597,15 +597,13 @@ function DishCard({
                   variant: "HALF",
                 })
               }
-              onChangeQty={(newQty) =>
-                updateQuantity(dish.id, "HALF", newQty)
-              }
+              onChangeQty={(newQty) => updateQuantity(dish.id, "HALF", newQty)}
             />
           )}
 
           {hasFull && (
             <VariantRow
-              label="Full"
+              label={showLabels ? "Full" : undefined}
               price={dish.fullPrice as number}
               qty={qtyFull}
               onAdd={() =>
@@ -616,9 +614,7 @@ function DishCard({
                   variant: "FULL",
                 })
               }
-              onChangeQty={(newQty) =>
-                updateQuantity(dish.id, "FULL", newQty)
-              }
+              onChangeQty={(newQty) => updateQuantity(dish.id, "FULL", newQty)}
             />
           )}
 
@@ -635,23 +631,16 @@ function DishCard({
                   variant: "DEFAULT",
                 })
               }
-              onChangeQty={(newQty) =>
-                updateQuantity(dish.id, "DEFAULT", newQty)
-              }
+              onChangeQty={(newQty) => updateQuantity(dish.id, "DEFAULT", newQty)}
             />
           )}
         </div>
       </div>
 
-      {/* Image */}
       <div className="flex-shrink-0 flex flex-col items-center gap-2">
         <div className="w-24 h-20 rounded-xl overflow-hidden bg-muted relative">
           {dish.imageUrl ? (
-            <img
-              src={dish.imageUrl}
-              alt={dish.name}
-              className="w-full h-full object-cover"
-            />
+            <img src={dish.imageUrl} alt={dish.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <Utensils className="h-8 w-8 text-muted-foreground/30" />

@@ -64,29 +64,22 @@ export default function AdminDishes() {
     if (!form.name.trim() || !form.categoryId) return;
 
     // Strong validation: fullPrice required, > 0
-    const fullPriceValue =
-      form.fullPrice != null && form.fullPrice > 0 ? form.fullPrice : null;
-    if (!fullPriceValue) {
-      alert("Please enter a valid Full Price");
-      return;
-    }
+    const finalFullPrice = form.fullPrice ?? editDish?.fullPrice;
 
     // Base price jo API ke 'price' field me jayega:
     // - hammesha full price hi rakhenge taaki old clients consistent rahein
-    const basePrice = fullPriceValue;
+   if (!finalFullPrice || finalFullPrice <= 0) {
+    alert("Please enter a valid Full Price");
+    return;
+  }
 
     const payload: CreateDishBody = {
       ...form,
-      description: form.description || null,
-      imageUrl: form.imageUrl || null,
-      // important: API ke required 'price' field ko yaha set kar rahe hain
-      price: basePrice,
-      // Optional fields ko clean karo: "" -> undefined
-      halfPrice:
-        form.halfPrice != null
-          ? form.halfPrice
-          : undefined,
-      fullPrice: Number(fullPriceValue),
+     description: form.description || null,
+    imageUrl: form.imageUrl || null,
+    price: finalFullPrice, // Base price
+    halfPrice: form.halfPrice ?? undefined,
+    fullPrice: Number(finalFullPrice),
     };
 
     if (editDish) {

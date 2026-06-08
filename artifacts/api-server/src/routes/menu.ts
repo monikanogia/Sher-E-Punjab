@@ -34,6 +34,8 @@ router.get("/menu/dishes", async (req: Request, res: Response) => {
         name: dishesTable.name,
         description: dishesTable.description,
         price: dishesTable.price,
+        halfPrice: dishesTable.halfPrice, // <--- YEH MISSING THA
+        fullPrice: dishesTable.fullPrice, // <--- YEH MISSING THA
         isVeg: dishesTable.isVeg,
         isAvailable: dishesTable.isAvailable,
         isFeatured: dishesTable.isFeatured,

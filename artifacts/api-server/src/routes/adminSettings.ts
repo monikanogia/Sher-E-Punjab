@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { settingsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { requireAdmin } from "../middlewares/requireAdmin.js";
+import { invalidatePublicMenuCache } from "../lib/publicMenuCache.js";
 import { UpdateSettingsBody } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -59,6 +60,7 @@ router.put("/admin/settings", async (req: Request, res: Response) => {
         .returning();
       settings = updated;
     }
+    invalidatePublicMenuCache();
     res.json(settings);
   } catch (err) {
     req.log.error({ err });

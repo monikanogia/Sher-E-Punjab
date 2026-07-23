@@ -3,13 +3,18 @@ import { db } from "@workspace/db";
 import { categoriesTable, dishesTable, settingsTable } from "@workspace/db";
 import { eq, and, ilike } from "drizzle-orm";
 import { ListDishesQueryParams } from "@workspace/api-zod";
+import { getOrSetPublicMenuCache } from "../lib/publicMenuCache.js";
 
+const PUBLIC_MENU_CACHE_TTL_MS = 5 * 60 * 1000;
 const router: IRouter = Router();
 
 router.get("/menu/categories", async (_req: Request, res: Response) => {
   try {
-    const categories = await db.select().from(categoriesTable).orderBy(categoriesTable.displayOrder);
-    const dishes = await db.select().from(dishesTable);
+    const result = await getOrSetPublicMenuCache("categories", PUBLIC_MENU_CACHE_TTL_MS, async () => {
+      const [categories, dishes] = await Promise.all([
+        db.select().from(categoriesTable).orderBy(categoriesTable.displayOrder),
+        db.select().from(dishesTable),
+      ]);
 
     const dishesByCategory = new Map<number, typeof dishes>();
     for (const dish of dishes) {
@@ -21,10 +26,11 @@ router.get("/menu/categories", async (_req: Request, res: Response) => {
       }
     }
 
-    const result = categories.map((category) => ({
-      ...category,
-      dishes: dishesByCategory.get(category.id) ?? [],
-    }));
+      return categories.map((category) => ({
+        ...category,
+        dishes: dishesByCategory.get(category.id) ?? [],
+      }));
+    });
 
     res.set("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=86400");
     res.json(result);
@@ -85,9 +91,9 @@ router.get("/menu/dishes", async (req: Request, res: Response) => {
 
 router.get("/menu/settings", async (_req: Request, res: Response) => {
   try {
-    const [settings] = await db.select().from(settingsTable).limit(1);
-    if (!settings) {
-      res.json({
+    const result = await getOrSetPublicMenuCache("settings", PUBLIC_MENU_CACHE_TTL_MS, async () => {
+      const [settings] = await db.select().from(settingsTable).limit(1);
+      if (!settings) return {
         restaurantName: "My Restaurant",
         logoUrl: null,
         whatsappNumber: "919999999999",
@@ -96,19 +102,20 @@ router.get("/menu/settings", async (_req: Request, res: Response) => {
         accentColor: null,
         upiId: null,        // <-- YEH ADD KIYA
         upiQrUrl: null,
-      });
-      return;
-    }
-    res.json({
-      restaurantName: settings.restaurantName,
-      logoUrl: settings.logoUrl ?? null,
-      whatsappNumber: settings.whatsappNumber,
-      openingHours: settings.openingHours ?? null,
-      isOpen: settings.isOpen,
-      accentColor: settings.accentColor ?? null,
-      upiId: settings.upiId ?? null,       // <-- YEH ADD KIYA
-      upiQrUrl: settings.upiQrUrl ?? null, // <-- YEH ADD KIYA
+      };
+      return {
+        restaurantName: settings.restaurantName,
+        logoUrl: settings.logoUrl ?? null,
+        whatsappNumber: settings.whatsappNumber,
+        openingHours: settings.openingHours ?? null,
+        isOpen: settings.isOpen,
+        accentColor: settings.accentColor ?? null,
+        upiId: settings.upiId ?? null,
+        upiQrUrl: settings.upiQrUrl ?? null,
+      };
     });
+    res.set("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=86400");
+    res.json(result);
   } catch (err) {
     _req.log.error({ err }, "Failed to get settings");
     res.status(500).json({ error: "Internal server error" });
@@ -117,8 +124,9 @@ router.get("/menu/settings", async (_req: Request, res: Response) => {
 
 router.get("/menu/featured", async (_req: Request, res: Response) => {
   try {
-    const rows = await db
-      .select({
+    const result = await getOrSetPublicMenuCache("featured", PUBLIC_MENU_CACHE_TTL_MS, async () => {
+      const rows = await db
+        .select({
         id: dishesTable.id,
         name: dishesTable.name,
         description: dishesTable.description,
@@ -134,7 +142,8 @@ router.get("/menu/featured", async (_req: Request, res: Response) => {
       .leftJoin(categoriesTable, eq(dishesTable.categoryId, categoriesTable.id))
       .where(and(eq(dishesTable.isFeatured, true), eq(dishesTable.isAvailable, true)));
 
-    const result = rows.map((r) => ({ ...r, price: Number(r.price) }));
+      return rows.map((row) => ({ ...row, price: Number(row.price) }));
+    });
     res.set("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=86400");
     res.json(result);
   } catch (err) {

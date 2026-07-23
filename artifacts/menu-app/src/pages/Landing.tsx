@@ -99,6 +99,10 @@ export default function Landing() {
                       <img
                         src={dish.imageUrl}
                         alt={dish.name}
+                        width={320}
+                        height={160}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (

@@ -412,6 +412,10 @@ export default function Menu() {
                   <img
                     src={settings.data?.upiQrUrl ?? "/upi-qr.png"}
                     alt="UPI QR Code"
+                    width={208}
+                    height={208}
+                    loading="lazy"
+                    decoding="async"
                     className="w-52 h-52 object-contain"
                   />
                 </div>
@@ -640,7 +644,15 @@ function DishCard({
       <div className="flex-shrink-0 flex flex-col items-center gap-2">
         <div className="w-24 h-20 rounded-xl overflow-hidden bg-muted relative">
           {dish.imageUrl ? (
-            <img src={dish.imageUrl} alt={dish.name} className="w-full h-full object-cover" />
+            <img
+              src={dish.imageUrl}
+              alt={dish.name}
+              width={96}
+              height={80}
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <Utensils className="h-8 w-8 text-muted-foreground/30" />

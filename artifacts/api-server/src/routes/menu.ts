@@ -11,11 +11,22 @@ router.get("/menu/categories", async (_req: Request, res: Response) => {
     const categories = await db.select().from(categoriesTable).orderBy(categoriesTable.displayOrder);
     const dishes = await db.select().from(dishesTable);
 
-    const result = categories.map((cat) => ({
-      ...cat,
-      dishes: dishes.filter((d) => d.categoryId === cat.id),
+    const dishesByCategory = new Map<number, typeof dishes>();
+    for (const dish of dishes) {
+      const categoryDishes = dishesByCategory.get(dish.categoryId);
+      if (categoryDishes) {
+        categoryDishes.push(dish);
+      } else {
+        dishesByCategory.set(dish.categoryId, [dish]);
+      }
+    }
+
+    const result = categories.map((category) => ({
+      ...category,
+      dishes: dishesByCategory.get(category.id) ?? [],
     }));
 
+    res.set("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=86400");
     res.json(result);
   } catch (err) {
     _req.log.error({ err }, "Failed to list menu categories");
@@ -64,6 +75,7 @@ router.get("/menu/dishes", async (req: Request, res: Response) => {
       price: Number(r.price),
     }));
 
+    res.set("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=86400");
     res.json(result);
   } catch (err) {
     req.log.error({ err }, "Failed to list dishes");
@@ -123,6 +135,7 @@ router.get("/menu/featured", async (_req: Request, res: Response) => {
       .where(and(eq(dishesTable.isFeatured, true), eq(dishesTable.isAvailable, true)));
 
     const result = rows.map((r) => ({ ...r, price: Number(r.price) }));
+    res.set("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=86400");
     res.json(result);
   } catch (err) {
     _req.log.error({ err }, "Failed to list featured dishes");

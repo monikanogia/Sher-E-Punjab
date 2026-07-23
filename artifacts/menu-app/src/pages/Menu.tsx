@@ -594,7 +594,7 @@ function DishCard({
           )}
           {dish.isFeatured && (
             <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full flex items-center gap-1">
-              <Star className="h-2.5 w-2.5" /> Chef&apos;s Special
+              <Star className="h-2.5 w-2.5" /> {t("chefsSpecialBadge")}
             </span>
           )}
         </div>
@@ -606,19 +606,19 @@ function DishCard({
         <div className="mt-2 space-y-1">
           {hasHalf && (
             <VariantRow
-              label={showLabels ? "Half" : undefined}
+              label={showLabels ? t("half") : undefined}
               price={dish.halfPrice as number}
               qty={qtyHalf}
-              onAdd={() => addItem({ id: dish.id, name: `${dish.name} (Half)`, price: dish.halfPrice as number, variant: "HALF" })}
+              onAdd={() => addItem({ id: dish.id, name: `${dish.name} (${t("half")})`, price: dish.halfPrice as number, variant: "HALF" })}
               onChangeQty={(newQty) => updateQuantity(dish.id, "HALF", newQty)}
             />
           )}
           {hasFull && (
             <VariantRow
-              label={showLabels ? "Full" : undefined}
+              label={showLabels ? t("full") : undefined}
               price={dish.fullPrice as number}
               qty={qtyFull}
-              onAdd={() => addItem({ id: dish.id, name: `${dish.name} (Full)`, price: dish.fullPrice as number, variant: "FULL" })}
+              onAdd={() => addItem({ id: dish.id, name: `${dish.name} (${t("full")})`, price: dish.fullPrice as number, variant: "FULL" })}
               onChangeQty={(newQty) => updateQuantity(dish.id, "FULL", newQty)}
             />
           )}
@@ -674,7 +674,7 @@ function VariantRow({
       </div>
       {qty === 0 ? (
         <button onClick={onAdd} className="px-3 py-1.5 bg-primary text-primary-foreground text-[11px] font-bold rounded-lg hover:opacity-90 transition-opacity">
-          ADD
+          {t("add")}
         </button>
       ) : (
         <div className="flex items-center gap-1.5">

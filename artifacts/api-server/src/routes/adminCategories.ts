@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { categoriesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { requireAdmin } from "../middlewares/requireAdmin.js";
+import { invalidatePublicMenuCache } from "../lib/publicMenuCache.js";
 import { CreateCategoryBody, UpdateCategoryParams, UpdateCategoryBody, DeleteCategoryParams } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -27,6 +28,7 @@ router.post("/admin/categories", async (req: Request, res: Response) => {
       return;
     }
     const [cat] = await db.insert(categoriesTable).values(parsed.data).returning();
+    invalidatePublicMenuCache();
     res.status(201).json(cat);
   } catch (err) {
     req.log.error({ err });
@@ -51,6 +53,7 @@ router.put("/admin/categories/:id", async (req: Request, res: Response) => {
       res.status(404).json({ error: "Category not found" });
       return;
     }
+    invalidatePublicMenuCache();
     res.json(cat);
   } catch (err) {
     req.log.error({ err });
@@ -66,6 +69,7 @@ router.delete("/admin/categories/:id", async (req: Request, res: Response) => {
       return;
     }
     await db.delete(categoriesTable).where(eq(categoriesTable.id, Number(parsed.data.id)));
+    invalidatePublicMenuCache();
     res.json({ success: true });
   } catch (err) {
     req.log.error({ err });

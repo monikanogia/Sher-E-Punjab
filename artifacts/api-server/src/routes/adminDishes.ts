@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { dishesTable, categoriesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { requireAdmin } from "../middlewares/requireAdmin.js";
+import { invalidatePublicMenuCache } from "../lib/publicMenuCache.js";
 import {
   CreateDishBody,
   UpdateDishParams,
@@ -72,6 +73,7 @@ router.post("/admin/dishes", async (req: Request, res: Response) => {
         categoryId,
       })
       .returning();
+    invalidatePublicMenuCache();
     res.status(201).json({
       ...dish, price: Number(dish.price), halfPrice: dish.halfPrice != null ? Number(dish.halfPrice) : null,
       fullPrice: dish.fullPrice != null ? Number(dish.fullPrice) : null,
@@ -117,6 +119,7 @@ router.put("/admin/dishes/:id", async (req: Request, res: Response) => {
       res.status(404).json({ error: "Dish not found" });
       return;
     }
+    invalidatePublicMenuCache();
     res.json({
       ...dish, price: Number(dish.price),
       halfPrice: dish.halfPrice != null ? Number(dish.halfPrice) : null,
@@ -136,6 +139,7 @@ router.delete("/admin/dishes/:id", async (req: Request, res: Response) => {
       return;
     }
     await db.delete(dishesTable).where(eq(dishesTable.id, Number(parsed.data.id)));
+    invalidatePublicMenuCache();
     res.json({ success: true });
   } catch (err) {
     req.log.error({ err });
@@ -160,6 +164,7 @@ router.patch("/admin/dishes/:id/toggle-stock", async (req: Request, res: Respons
       .set({ isAvailable: !current.isAvailable })
       .where(eq(dishesTable.id, Number(parsed.data.id)))
       .returning();
+    invalidatePublicMenuCache();
     res.json({
       ...dish, price: Number(dish.price),
       halfPrice: dish.halfPrice != null ? Number(dish.halfPrice) : null,

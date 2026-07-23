@@ -655,9 +655,9 @@ function DishCard({
       </div>
     </div>
   );
-});
+}
 
-const VariantRow = memo(function VariantRow({
+function VariantRow({
   label, price, qty, onAdd, onChangeQty,
 }: {
   label?: string;

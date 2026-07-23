@@ -618,6 +618,7 @@ function DishCard({
               qty={qtyHalf}
               onAdd={() => addItem({ id: dish.id, name: `${dish.name} (${t("half")})`, price: dish.halfPrice as number, variant: "HALF" })}
               onChangeQty={(newQty) => updateQuantity(dish.id, "HALF", newQty)}
+              t={t}
             />
           )}
           {hasVariants && hasFull && (
@@ -627,6 +628,7 @@ function DishCard({
               qty={qtyFull}
               onAdd={() => addItem({ id: dish.id, name: `${dish.name} (${t("full")})`, price: dish.fullPrice as number, variant: "FULL" })}
               onChangeQty={(newQty) => updateQuantity(dish.id, "FULL", newQty)}
+              t={t}
             />
           )}
           {showDefault && (
@@ -636,6 +638,7 @@ function DishCard({
               qty={qtyDefault}
               onAdd={() => addItem({ id: dish.id, name: dish.name, price: hasFull ? (dish.fullPrice as number) : dish.price, variant: "DEFAULT" })}
               onChangeQty={(newQty) => updateQuantity(dish.id, "DEFAULT", newQty)}
+              t={t}
             />
           )}
         </div>
@@ -665,13 +668,14 @@ function DishCard({
 }
 
 function VariantRow({
-  label, price, qty, onAdd, onChangeQty,
+  label, price, qty, onAdd, onChangeQty, t,
 }: {
   label?: string;
   price: number;
   qty: number;
   onAdd: () => void;
   onChangeQty: (qty: number) => void;
+  t: (key: string) => string;
 }) {
   return (
     <div className="flex items-center justify-between gap-2">

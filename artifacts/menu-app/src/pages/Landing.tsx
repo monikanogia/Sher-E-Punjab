@@ -113,9 +113,19 @@ export default function Landing() {
                           alt={localDish.name}
                           width={320}
                           height={160}
-                          loading="lazy"
+                          loading="eager"
+                          fetchpriority="high"
                           decoding="async"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          style={{
+                            backgroundColor: '#ede6d8',
+                            backgroundImage: 'linear-gradient(90deg, #ede6d8 0px, #f5efe6 40px, #ede6d8 80px)',
+                            backgroundSize: '200% 100%',
+                          }}
+                          onLoad={(e) => {
+                            const img = e.target as HTMLImageElement;
+                            img.style.backgroundImage = 'none';
+                          }}
                         />
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center gap-1">

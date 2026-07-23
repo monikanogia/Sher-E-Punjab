@@ -10,17 +10,20 @@ import {
 import type { Dish } from "@workspace/api-client-react";
 import type { DishVariant } from "@/contexts/CartContext";
 import { dismissWelcome, getActiveProfile, saveProfile, shouldShowWelcome, submitProfile, trackEvent } from "@/lib/customerAnalytics";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 export default function Menu() {
   const search = useSearch();
   const params = new URLSearchParams(search);
   const tableId = params.get("table") ?? "1";
+  const { t, translateDish, translateCategory } = useLanguage();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [payOpen, setPayOpen] = useState(false);
   const [vegFilter, setVegFilter] = useState<"all" | "veg" | "nonveg">("all");
   const [cartOpen, setCartOpen] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false); // ✅ 
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [profile, setProfile] = useState(() => getActiveProfile());
   const [welcomeOpen, setWelcomeOpen] = useState(() => shouldShowWelcome());
   const [welcomeName, setWelcomeName] = useState("");
@@ -49,7 +52,6 @@ export default function Menu() {
   useEffect(() => {
     void trackEvent("visit", tableId);
     if (params.get("table")) void trackEvent("qr_scan", tableId);
-    // Tracking failures must never block menu access.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -81,8 +83,7 @@ export default function Menu() {
   };
 
   const getQtyInCart = (dishId: number, variant: DishVariant) =>
-    items.find((i) => i.dishId === dishId && i.variant === variant)?.quantity ??
-    0;
+    items.find((i) => i.dishId === dishId && i.variant === variant)?.quantity ?? 0;
 
   const placeOrder = () => {
     if (items.length === 0) return;
@@ -107,8 +108,6 @@ export default function Menu() {
     });
   };
 
-
-
   const allFilteredDishes = dishes ?? [];
 
   return (
@@ -116,12 +115,21 @@ export default function Menu() {
       {welcomeOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-label="Welcome">
           <form onSubmit={handleProfileSubmit} className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-xl">
-            <div className="flex items-start justify-between gap-4"><div><h2 className="text-xl font-bold">Welcome to {restaurantName}</h2><p className="mt-1 text-sm text-muted-foreground">Share your details for a more personal service.</p></div><button type="button" onClick={closeWelcome} aria-label="Close welcome dialog" className="rounded p-1 text-muted-foreground hover:bg-muted"><X className="h-5 w-5" /></button></div>
-            <label className="mt-5 block text-sm font-medium">Name<input value={welcomeName} onChange={(e) => setWelcomeName(e.target.value)} maxLength={100} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" autoComplete="name" /></label>
-            <label className="mt-3 block text-sm font-medium">Phone<input value={welcomePhone} onChange={(e) => setWelcomePhone(e.target.value)} inputMode="tel" maxLength={20} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" autoComplete="tel" /></label>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold">Welcome to {restaurantName}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{t("welcomeMessage")}</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <LanguageSelector compact={true} />
+                <button type="button" onClick={closeWelcome} aria-label="Close welcome dialog" className="rounded p-1 text-muted-foreground hover:bg-muted"><X className="h-5 w-5" /></button>
+              </div>
+            </div>
+            <label className="mt-5 block text-sm font-medium">{t("name")}<input value={welcomeName} onChange={(e) => setWelcomeName(e.target.value)} maxLength={100} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" autoComplete="name" /></label>
+            <label className="mt-3 block text-sm font-medium">{t("phone")}<input value={welcomePhone} onChange={(e) => setWelcomePhone(e.target.value)} inputMode="tel" maxLength={20} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" autoComplete="tel" /></label>
             {profileError && <p className="mt-3 text-sm text-destructive">{profileError}</p>}
             <p className="mt-4 text-xs text-muted-foreground">Your details are collected to share exclusive offers, updates, and special deals from {restaurantName}.</p>
-            <button disabled={submittingProfile} className="mt-4 w-full rounded-lg bg-primary px-4 py-2.5 font-semibold text-primary-foreground disabled:opacity-60">{submittingProfile ? "Saving..." : "Continue"}</button>
+            <button disabled={submittingProfile} className="mt-4 w-full rounded-lg bg-primary px-4 py-2.5 font-semibold text-primary-foreground disabled:opacity-60">{submittingProfile ? t("saving") : t("continue")}</button>
           </form>
         </div>
       )}
@@ -137,13 +145,15 @@ export default function Menu() {
               <p className="text-xs text-muted-foreground">{profile ? `Welcome, ${profile.name}` : `Table ${tableId}`}</p>
             </div>
             <div className="flex items-center gap-2">
+              <LanguageSelector compact={true} />
+
               <button
                 onClick={callWaiter}
                 data-testid="button-call-waiter"
                 className="flex items-center gap-1.5 bg-green-500 text-white px-3 py-2 rounded-full text-xs font-semibold hover:bg-green-600 transition-colors shadow-sm"
               >
                 <Phone className="h-3.5 w-3.5" />
-                Call Waiter
+                {t("callWaiter")}
               </button>
 
               <button
@@ -151,7 +161,7 @@ export default function Menu() {
                 className="flex items-center gap-1.5 text-white px-3 py-2 rounded-full text-xs font-semibold transition-colors shadow-sm"
                 style={{ background: "#1a3a26" }}
               >
-                💳 Pay Now
+                💳 {t("payNow")}
               </button>
 
               <button
@@ -174,7 +184,7 @@ export default function Menu() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="search"
-              placeholder="Search dishes..."
+              placeholder={t("searchDishes")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm"
@@ -184,22 +194,22 @@ export default function Menu() {
 
           {/* Filters */}
           <div className="flex gap-2">
-            {[["all", "All"], ["veg", "Veg"]].map(([val, label]) => (
+            {([["all", t("all")], ["veg", t("veg")]] as [string, string][]).map(([val, label]) => (
               <button
                 key={val}
                 onClick={() => setVegFilter(val as typeof vegFilter)}
                 data-testid={`button-filter-${val}`}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${vegFilter === val
-                  ? val === "veg"
-                    ? "bg-green-500 text-white border-green-500"
-                    : val === "nonveg"
-                      ? "bg-red-500 text-white border-red-500"
-                      : "bg-primary text-primary-foreground border-primary"
-                  : "bg-background text-muted-foreground border-border hover:border-primary hover:text-primary"
-                  }`}
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                  vegFilter === val
+                    ? val === "veg"
+                      ? "bg-green-500 text-white border-green-500"
+                      : val === "nonveg"
+                        ? "bg-red-500 text-white border-red-500"
+                        : "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-muted-foreground border-border hover:border-primary hover:text-primary"
+                }`}
               >
                 {val === "veg" && <Leaf className="h-3 w-3" />}
-                {/* val === "nonveg" && <Flame className="h-3 w-3" /> */}
                 {label}
               </button>
             ))}
@@ -211,12 +221,12 @@ export default function Menu() {
       <div className="max-w-2xl mx-auto px-4 py-4">
         {debouncedSearchQuery ? (
           <div>
-            <p className="text-sm text-muted-foreground mb-4">{allFilteredDishes.length} results for "{debouncedSearchQuery}"</p>
+            <p className="text-sm text-muted-foreground mb-4">{allFilteredDishes.length} {t("resultsFor")} "{debouncedSearchQuery}"</p>
             <div className="space-y-3">
               {allFilteredDishes.map((dish) => (
                 <DishCard
                   key={dish.id}
-                  dish={dish}
+                  dish={translateDish(dish)}
                   qtyDefault={getQtyInCart(dish.id, "DEFAULT")}
                   qtyHalf={getQtyInCart(dish.id, "HALF")}
                   qtyFull={getQtyInCart(dish.id, "FULL")}
@@ -227,7 +237,7 @@ export default function Menu() {
               {allFilteredDishes.length === 0 && (
                 <div className="text-center py-12 text-muted-foreground">
                   <Utensils className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                  <p>No dishes found</p>
+                  <p>{t("noDishesFound")}</p>
                 </div>
               )}
             </div>
@@ -240,6 +250,7 @@ export default function Menu() {
               ))
             ) : (
               (categories.data ?? []).map((cat) => {
+                const localCat = translateCategory(cat);
                 const isExpanded = expandedCategories.has(cat.id);
                 const availableDishCount = (cat.dishes ?? []).reduce((count, dish) => {
                   if (!dish.isAvailable) return count;
@@ -257,10 +268,10 @@ export default function Menu() {
                     >
                       <div className="flex items-center gap-3">
                         <span className="font-bold text-foreground text-lg" style={{ fontFamily: "var(--app-font-serif)" }}>
-                          {cat.name}
+                          {localCat.name}
                         </span>
                         <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                          {availableDishCount} items
+                          {availableDishCount} {t("items")}
                         </span>
                       </div>
                       {expandedCategories.has(cat.id) ? (
@@ -272,12 +283,12 @@ export default function Menu() {
                     {expandedCategories.has(cat.id) && (
                       <div className="divide-y divide-border">
                         {catDishes.length === 0 ? (
-                          <p className="px-4 py-6 text-center text-sm text-muted-foreground">No items available</p>
+                          <p className="px-4 py-6 text-center text-sm text-muted-foreground">{t("noItemsAvailable")}</p>
                         ) : (
                           catDishes.map((dish) => (
                             <DishCard
                               key={dish.id}
-                              dish={dish}
+                              dish={translateDish(dish)}
                               qtyDefault={getQtyInCart(dish.id, "DEFAULT")}
                               qtyHalf={getQtyInCart(dish.id, "HALF")}
                               qtyFull={getQtyInCart(dish.id, "FULL")}
@@ -294,11 +305,11 @@ export default function Menu() {
             )}
           </div>
         )}
-        {/* ── Sticky Developer Footer ── */}
+
+        {/* Sticky Developer Footer */}
         <div className="fixed bottom-0 left-0 right-0 z-30 bg-background/90 backdrop-blur-sm border-t border-border">
           <div className="max-w-2xl mx-auto px-4 py-1.5 flex items-center justify-center gap-2">
             <span className="text-[10px] text-muted-foreground">Built by</span>
-
             <div className="flex items-center gap-1">
               <span className="text-[10px] font-semibold text-foreground">Monika Nogia</span>
               <a
@@ -311,9 +322,7 @@ export default function Menu() {
                 i
               </a>
             </div>
-
             <span className="text-muted-foreground text-[10px]">·</span>
-
             <a
               href="https://wa.me/91XXXXXXXXXX"
               target="_blank"
@@ -326,9 +335,7 @@ export default function Menu() {
               </svg>
               Contact
             </a>
-
             <span className="text-muted-foreground text-[10px]">·</span>
-
             <a
               href="mailto:nogiamonika2005@gmail.com"
               className="text-[10px] text-primary font-semibold hover:opacity-70 transition-opacity"
@@ -337,7 +344,6 @@ export default function Menu() {
             </a>
           </div>
         </div>
-
       </div>
 
       {/* Floating cart summary */}
@@ -350,7 +356,7 @@ export default function Menu() {
           >
             <div className="flex items-center gap-3">
               <div className="bg-white/20 rounded-lg px-2.5 py-1 text-sm font-bold">{totalItems}</div>
-              <span className="font-semibold">View Cart</span>
+              <span className="font-semibold">{t("viewCart")}</span>
             </div>
             <span className="font-bold text-lg">₹{totalPrice}</span>
           </button>
@@ -364,7 +370,7 @@ export default function Menu() {
           <div ref={cartRef} className="bg-card rounded-t-3xl max-h-[80vh] overflow-y-auto">
             <div className="sticky top-0 bg-card border-b border-border px-5 py-4 flex items-center justify-between">
               <div>
-                <h2 className="font-bold text-xl text-foreground">Your Cart</h2>
+                <h2 className="font-bold text-xl text-foreground">{t("yourCart")}</h2>
                 <p className="text-sm text-muted-foreground">Table {tableId}</p>
               </div>
               <button onClick={() => setCartOpen(false)} data-testid="button-close-cart" className="p-2 rounded-full hover:bg-muted transition-colors">
@@ -385,9 +391,7 @@ export default function Menu() {
                   </div>
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() =>
-                        updateQuantity(item.dishId, item.variant, item.quantity - 1)
-                      }
+                      onClick={() => updateQuantity(item.dishId, item.variant, item.quantity - 1)}
                       data-testid={`button-decrease-${item.dishId}-${item.variant.toLowerCase()}`}
                       className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
                     >
@@ -395,9 +399,7 @@ export default function Menu() {
                     </button>
                     <span className="w-6 text-center font-bold">{item.quantity}</span>
                     <button
-                      onClick={() =>
-                        updateQuantity(item.dishId, item.variant, item.quantity + 1)
-                      }
+                      onClick={() => updateQuantity(item.dishId, item.variant, item.quantity + 1)}
                       data-testid={`button-increase-${item.dishId}-${item.variant.toLowerCase()}`}
                       className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity"
                     >
@@ -412,7 +414,7 @@ export default function Menu() {
 
               <div className="border-t border-border pt-4">
                 <div className="flex justify-between items-center mb-6">
-                  <span className="font-bold text-lg text-foreground">Total</span>
+                  <span className="font-bold text-lg text-foreground">{t("total")}</span>
                   <span className="font-bold text-2xl text-primary">₹{totalPrice}</span>
                 </div>
                 <button
@@ -421,14 +423,14 @@ export default function Menu() {
                   className="w-full bg-green-500 text-white py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:bg-green-600 transition-colors shadow-lg mb-3"
                 >
                   <MessageCircle className="h-6 w-6" />
-                  Place Order via WhatsApp
+                  {t("placeOrder")}
                 </button>
                 <button
                   onClick={clearCart}
                   data-testid="button-clear-cart"
                   className="w-full border border-border text-muted-foreground py-3 rounded-2xl font-medium hover:bg-muted transition-colors text-sm"
                 >
-                  Clear Cart
+                  {t("clearCart")}
                 </button>
               </div>
             </div>
@@ -438,16 +440,11 @@ export default function Menu() {
 
       {payOpen && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
-          {/* Backdrop */}
           <div className="absolute inset-0 bg-black/50" onClick={() => setPayOpen(false)} />
-
-          {/* Sheet */}
           <div className="relative bg-card rounded-t-3xl overflow-y-auto">
-
-            {/* Header */}
             <div className="sticky top-0 bg-card border-b border-border px-5 py-4 flex items-center justify-between">
               <div>
-                <h2 className="font-bold text-xl text-foreground">Pay Now</h2>
+                <h2 className="font-bold text-xl text-foreground">{t("payNow")}</h2>
                 <p className="text-xs text-muted-foreground">Table {tableId}</p>
               </div>
               <button onClick={() => setPayOpen(false)} className="p-2 rounded-full hover:bg-muted transition-colors">
@@ -456,10 +453,8 @@ export default function Menu() {
             </div>
 
             <div className="px-5 py-6 flex flex-col items-center gap-6">
-
-              {/* QR Code */}
               <div className="flex flex-col items-center gap-2">
-                <p className="text-sm text-muted-foreground font-medium">Scan & Pay</p>
+                <p className="text-sm text-muted-foreground font-medium">{t("scanAndPay")}</p>
                 <div className="p-3 bg-white rounded-2xl border border-border shadow-sm">
                   <img
                     src={settings.data?.upiQrUrl ?? "/upi-qr.png"}
@@ -476,20 +471,18 @@ export default function Menu() {
                 </p>
               </div>
 
-              {/* Divider */}
               <div className="flex items-center gap-3 w-full">
                 <div className="flex-1 h-px bg-border" />
                 <span className="text-xs text-muted-foreground">OR</span>
                 <div className="flex-1 h-px bg-border" />
               </div>
 
-              {/* UPI Deep Link Button */}
               <a
                 href={`upi://pay?pa=${settings.data?.upiId ?? ""}&pn=${encodeURIComponent(restaurantName)}&cu=INR`}
                 className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-white text-base shadow-lg"
                 style={{ background: "#1a3a26" }}
               >
-                📲 Open UPI App to Pay
+                📲 {t("openUpi")}
               </a>
 
               <p className="text-xs text-center text-muted-foreground px-4">
@@ -500,42 +493,32 @@ export default function Menu() {
         </div>
       )}
 
-
-      {/* ── Category Quick-Nav Button ── */}
+      {/* Category Quick-Nav Button */}
       <button
         onClick={() => setDrawerOpen(true)}
-        className="fixed bottom-24 right-4 z-40 bg-orange-500 text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-sm font-bold" style={{ background: "#1a3a26" }}
-
+        className="fixed bottom-24 right-4 z-40 bg-orange-500 text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-sm font-bold"
+        style={{ background: "#1a3a26" }}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
         </svg>
-        Menu
+        {t("categories")}
       </button>
 
-      {/* ── Category Drawer ── */}
+      {/* Category Drawer */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setDrawerOpen(false)}
-          />
-          {/* Sheet */}
+          <div className="absolute inset-0 bg-black/50" onClick={() => setDrawerOpen(false)} />
           <div className="relative bg-card rounded-t-3xl max-h-[70vh] overflow-y-auto">
-            {/* Header */}
             <div className="sticky top-0 bg-card border-b border-border px-5 py-4 flex items-center justify-between">
-              <h2 className="font-bold text-xl text-foreground">Categories</h2>
-              <button
-                onClick={() => setDrawerOpen(false)}
-                className="p-2 rounded-full hover:bg-muted transition-colors"
-              >
+              <h2 className="font-bold text-xl text-foreground">{t("categories")}</h2>
+              <button onClick={() => setDrawerOpen(false)} className="p-2 rounded-full hover:bg-muted transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
-            {/* Grid */}
             <div className="p-4 grid grid-cols-2 gap-3">
               {(categories.data ?? []).map((cat) => {
+                const localCat = translateCategory(cat);
                 const count = (cat.dishes ?? []).reduce((total, dish) => {
                   if (!dish.isAvailable) return total;
                   if (vegFilter === "veg" && !dish.isVeg) return total;
@@ -547,7 +530,6 @@ export default function Menu() {
                     key={cat.id}
                     onClick={() => {
                       setDrawerOpen(false);
-                      // category expand karo agar band hai
                       setExpandedCategories((prev) => {
                         const next = new Set(prev);
                         next.add(cat.id);
@@ -556,23 +538,16 @@ export default function Menu() {
                       setTimeout(() => {
                         const el = document.getElementById(`category-${cat.id}`);
                         if (el) {
-                          const headerOffset = 130; // sticky header ki height
+                          const headerOffset = 130;
                           const elementPosition = el.getBoundingClientRect().top + window.scrollY;
-                          window.scrollTo({
-                            top: elementPosition - headerOffset,
-                            behavior: "smooth",
-                          });
+                          window.scrollTo({ top: elementPosition - headerOffset, behavior: "smooth" });
                         }
                       }, 150);
                     }}
                     className="text-left px-4 py-3 rounded-xl border border-border hover:bg-orange-50 hover:border-orange-300 transition-all"
                   >
-                    <p className="font-semibold text-foreground text-sm leading-tight">
-                      {cat.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {count} items
-                    </p>
+                    <p className="font-semibold text-foreground text-sm leading-tight">{localCat.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{count} {t("items")}</p>
                   </button>
                 );
               })}
@@ -581,7 +556,6 @@ export default function Menu() {
         </div>
       )}
     </div>
-
   );
 }
 
@@ -597,27 +571,16 @@ function DishCard({
   qtyDefault: number;
   qtyHalf: number;
   qtyFull: number;
-  addItem: (d: {
-    id: number;
-    name: string;
-    price: number;
-    variant?: DishVariant;
-  }) => void;
+  addItem: (d: { id: number; name: string; price: number; variant?: DishVariant }) => void;
   updateQuantity: (id: number, variant: DishVariant, qty: number) => void;
 }) {
   const hasHalf = dish.halfPrice != null;
   const hasFull = dish.fullPrice != null;
-  
-  // LOGIC: Agar dono hain tabhi label "Half" ya "Full" dikhao, warna empty string
   const showLabels = hasHalf && hasFull;
-
   const showDefault = !hasHalf && !hasFull;
 
   return (
-    <div
-      data-testid={`card-dish-${dish.id}`}
-      className="flex gap-4 p-4 hover:bg-muted/20 transition-colors"
-    >
+    <div data-testid={`card-dish-${dish.id}`} className="flex gap-4 p-4 hover:bg-muted/20 transition-colors">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           {dish.isVeg ? (
@@ -635,13 +598,9 @@ function DishCard({
             </span>
           )}
         </div>
-        <h3 className="font-semibold text-foreground text-sm leading-tight">
-          {dish.name}
-        </h3>
+        <h3 className="font-semibold text-foreground text-sm leading-tight">{dish.name}</h3>
         {dish.description && (
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-            {dish.description}
-          </p>
+          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{dish.description}</p>
         )}
 
         <div className="mt-2 space-y-1">
@@ -650,48 +609,25 @@ function DishCard({
               label={showLabels ? "Half" : undefined}
               price={dish.halfPrice as number}
               qty={qtyHalf}
-              onAdd={() =>
-                addItem({
-                  id: dish.id,
-                  name: `${dish.name} (Half)`,
-                  price: dish.halfPrice as number,
-                  variant: "HALF",
-                })
-              }
+              onAdd={() => addItem({ id: dish.id, name: `${dish.name} (Half)`, price: dish.halfPrice as number, variant: "HALF" })}
               onChangeQty={(newQty) => updateQuantity(dish.id, "HALF", newQty)}
             />
           )}
-
           {hasFull && (
             <VariantRow
               label={showLabels ? "Full" : undefined}
               price={dish.fullPrice as number}
               qty={qtyFull}
-              onAdd={() =>
-                addItem({
-                  id: dish.id,
-                  name: `${dish.name} (Full)`,
-                  price: dish.fullPrice as number,
-                  variant: "FULL",
-                })
-              }
+              onAdd={() => addItem({ id: dish.id, name: `${dish.name} (Full)`, price: dish.fullPrice as number, variant: "FULL" })}
               onChangeQty={(newQty) => updateQuantity(dish.id, "FULL", newQty)}
             />
           )}
-
           {showDefault && (
             <VariantRow
               label={undefined}
               price={dish.price}
               qty={qtyDefault}
-              onAdd={() =>
-                addItem({
-                  id: dish.id,
-                  name: dish.name,
-                  price: dish.price,
-                  variant: "DEFAULT",
-                })
-              }
+              onAdd={() => addItem({ id: dish.id, name: dish.name, price: dish.price, variant: "DEFAULT" })}
               onChangeQty={(newQty) => updateQuantity(dish.id, "DEFAULT", newQty)}
             />
           )}
@@ -722,11 +658,7 @@ function DishCard({
 }
 
 function VariantRow({
-  label,
-  price,
-  qty,
-  onAdd,
-  onChangeQty,
+  label, price, qty, onAdd, onChangeQty,
 }: {
   label?: string;
   price: number;
@@ -738,34 +670,19 @@ function VariantRow({
     <div className="flex items-center justify-between gap-2">
       <div className="flex items-baseline gap-2">
         <p className="font-bold text-primary text-sm">₹{price}</p>
-        {label && (
-          <span className="text-[11px] text-muted-foreground uppercase tracking-wide">
-            {label}
-          </span>
-        )}
+        {label && <span className="text-[11px] text-muted-foreground uppercase tracking-wide">{label}</span>}
       </div>
       {qty === 0 ? (
-        <button
-          onClick={onAdd}
-          className="px-3 py-1.5 bg-primary text-primary-foreground text-[11px] font-bold rounded-lg hover:opacity-90 transition-opacity"
-        >
+        <button onClick={onAdd} className="px-3 py-1.5 bg-primary text-primary-foreground text-[11px] font-bold rounded-lg hover:opacity-90 transition-opacity">
           ADD
         </button>
       ) : (
         <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => onChangeQty(qty - 1)}
-            className="w-7 h-7 rounded-lg border border-primary text-primary flex items-center justify-center hover:bg-primary/10 transition-colors"
-          >
+          <button onClick={() => onChangeQty(qty - 1)} className="w-7 h-7 rounded-lg border border-primary text-primary flex items-center justify-center hover:bg-primary/10 transition-colors">
             <Minus className="h-3 w-3" />
           </button>
-          <span className="font-bold text-primary text-sm w-4 text-center">
-            {qty}
-          </span>
-          <button
-            onClick={() => onChangeQty(qty + 1)}
-            className="w-7 h-7 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity"
-          >
+          <span className="font-bold text-primary text-sm w-4 text-center">{qty}</span>
+          <button onClick={() => onChangeQty(qty + 1)} className="w-7 h-7 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity">
             <Plus className="h-3 w-3" />
           </button>
         </div>

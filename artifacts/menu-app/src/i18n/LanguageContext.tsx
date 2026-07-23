@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState, memo } from "react";
 import { getActiveLanguage, setLanguage as persistLanguage, type Language } from "./languages";
 import { translations, type TranslationKey } from "./translations";
 import { menuContentTranslations } from "./menuContentTranslations";
@@ -16,12 +16,21 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setCurrentLanguage] = useState<Language>(() => getActiveLanguage());
   const setLanguage = useCallback((nextLanguage: Language) => { persistLanguage(nextLanguage); setCurrentLanguage(nextLanguage); }, []);
+  const t = useCallback((key: TranslationKey) => translations[language][key], [language]);
+  const translateDish = useCallback(<T extends { id: number; name: string; description?: string | null }>(dish: T): T => {
+    if (language === "en") return dish;
+    const translation = menuContentTranslations.dishes[dish.id]?.[language];
+    if (!translation) return dish;
+    return { ...dish, ...translation };
+  }, [language]);
+  const translateCategory = useCallback(<T extends { id: number; name: string }>(category: T): T => {
+    if (language === "en") return category;
+    const translation = menuContentTranslations.categories[category.id]?.[language];
+    return translation ? { ...category, name: translation } : category;
+  }, [language]);
   const value = useMemo<LanguageContextValue>(() => ({
-    language, setLanguage,
-    t: (key) => translations[language][key],
-    translateDish: (dish) => ({ ...dish, ...menuContentTranslations.dishes[dish.id]?.[language] }),
-    translateCategory: (category) => ({ ...category, name: menuContentTranslations.categories[category.id]?.[language] ?? category.name }),
-  }), [language, setLanguage]);
+    language, setLanguage, t, translateDish, translateCategory
+  }), [language, setLanguage, t, translateDish, translateCategory]);
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }
 

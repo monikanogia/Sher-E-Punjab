@@ -232,6 +232,7 @@ export default function Menu() {
                   qtyFull={getQtyInCart(dish.id, "FULL")}
                   addItem={addItem}
                   updateQuantity={updateQuantity}
+                  t={t}
                 />
               ))}
               {allFilteredDishes.length === 0 && (
@@ -294,6 +295,7 @@ export default function Menu() {
                               qtyFull={getQtyInCart(dish.id, "FULL")}
                               addItem={addItem}
                               updateQuantity={updateQuantity}
+                              t={t}
                             />
                           ))
                         )}
@@ -566,6 +568,7 @@ function DishCard({
   qtyFull,
   addItem,
   updateQuantity,
+  t,
 }: {
   dish: Dish;
   qtyDefault: number;
@@ -573,6 +576,7 @@ function DishCard({
   qtyFull: number;
   addItem: (d: { id: number; name: string; price: number; variant?: DishVariant }) => void;
   updateQuantity: (id: number, variant: DishVariant, qty: number) => void;
+  t: (key: string) => string;
 }) {
   const hasHalf = dish.halfPrice != null;
   const hasFull = dish.fullPrice != null;

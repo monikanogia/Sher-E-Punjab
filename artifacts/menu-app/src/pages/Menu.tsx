@@ -464,6 +464,7 @@ export default function Menu() {
                     width={208}
                     height={208}
                     loading="lazy"
+                    fetchpriority="low"
                     decoding="async"
                     className="w-52 h-52 object-contain"
                   />

@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import type { Dish } from "@workspace/api-client-react";
 import type { DishVariant } from "@/contexts/CartContext";
-import { dismissWelcome, getActiveProfile, saveProfile, shouldShowWelcome, submitProfile, trackEvent } from "@/lib/customerAnalytics";
+import { dismissWelcome, getActiveProfile, saveProfile, submitProfile, trackEvent } from "@/lib/customerAnalytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 
@@ -25,7 +25,9 @@ export default function Menu() {
   const [cartOpen, setCartOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profile, setProfile] = useState(() => getActiveProfile());
-  const [welcomeOpen, setWelcomeOpen] = useState(() => shouldShowWelcome());
+  // Keep the optional customer profile prompt disabled. Analytics availability
+  // must never block customers from opening and using the menu.
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [welcomeName, setWelcomeName] = useState("");
   const [welcomePhone, setWelcomePhone] = useState("");
   const [profileError, setProfileError] = useState("");

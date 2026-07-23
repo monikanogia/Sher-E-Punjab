@@ -83,8 +83,17 @@ router.post("/analytics/events", publicRateLimit, async (req, res) => {
 });
 
 router.post("/analytics/profile", publicRateLimit, async (req, res) => {
-  // Log incoming request for debugging
-  req.log.info({ body: req.body }, "Profile submission attempt");
+  // Enhanced logging for debugging 401 issues
+  req.log.info({ 
+    headers: { 
+      origin: req.headers.origin, 
+      'user-agent': req.headers['user-agent'],
+      'content-type': req.headers['content-type'],
+      'authorization': req.headers.authorization ? 'present' : 'missing'
+    },
+    ip: req.ip,
+    body: req.body 
+  }, "Profile submission received");
   
   const parsed = profileSchema.safeParse(req.body);
   if (!parsed.success) {

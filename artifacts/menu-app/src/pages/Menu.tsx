@@ -557,7 +557,7 @@ export default function Menu() {
       )}
     </div>
   );
-}
+});
 
 const DishCard = memo(function DishCard({
   dish,

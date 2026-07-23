@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import type { Dish } from "@workspace/api-client-react";
 import type { DishVariant } from "@/contexts/CartContext";
+import { dismissWelcome, getActiveProfile, saveProfile, shouldShowWelcome, submitProfile, trackEvent } from "@/lib/customerAnalytics";
 
 export default function Menu() {
   const search = useSearch();
@@ -20,6 +21,12 @@ export default function Menu() {
   const [vegFilter, setVegFilter] = useState<"all" | "veg" | "nonveg">("all");
   const [cartOpen, setCartOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false); // ✅ 
+  const [profile, setProfile] = useState(() => getActiveProfile());
+  const [welcomeOpen, setWelcomeOpen] = useState(() => shouldShowWelcome());
+  const [welcomeName, setWelcomeName] = useState("");
+  const [welcomePhone, setWelcomePhone] = useState("");
+  const [profileError, setProfileError] = useState("");
+  const [submittingProfile, setSubmittingProfile] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const cartRef = useRef<HTMLDivElement>(null);
 
@@ -38,6 +45,23 @@ export default function Menu() {
   const { items, addItem, updateQuantity, totalItems, totalPrice, clearCart } = useCart();
   const whatsappNumber = settings.data?.whatsappNumber ?? "919999999999";
   const restaurantName = settings.data?.restaurantName ?? "Restaurant";
+
+  useEffect(() => {
+    void trackEvent("visit", tableId);
+    if (params.get("table")) void trackEvent("qr_scan", tableId);
+    // Tracking failures must never block menu access.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const closeWelcome = () => { dismissWelcome(); setWelcomeOpen(false); };
+  const handleProfileSubmit = async (event: React.FormEvent) => {
+    event.preventDefault(); setProfileError("");
+    if (!welcomeName.trim() || !/^\+?[0-9][0-9\s-]{7,19}$/.test(welcomePhone.trim())) { setProfileError("Enter your name and a valid phone number."); return; }
+    setSubmittingProfile(true);
+    try { await submitProfile(welcomeName.trim(), welcomePhone.trim(), tableId); saveProfile(welcomeName.trim()); setProfile(getActiveProfile()); setWelcomeOpen(false); }
+    catch { setProfileError("We could not save your details. You can still close this form and view the menu."); }
+    finally { setSubmittingProfile(false); }
+  };
 
   useEffect(() => {
     if (categories.data && expandedCategories.size === 0) {
@@ -89,6 +113,20 @@ export default function Menu() {
 
   return (
     <div className="min-h-screen bg-background pb-40">
+      {welcomeOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-label="Welcome">
+          <form onSubmit={handleProfileSubmit} className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-xl">
+            <div className="flex items-start justify-between gap-4"><div><h2 className="text-xl font-bold">Welcome to {restaurantName}</h2><p className="mt-1 text-sm text-muted-foreground">Share your details for a more personal service.</p></div><button type="button" onClick={closeWelcome} aria-label="Close welcome dialog" className="rounded p-1 text-muted-foreground hover:bg-muted"><X className="h-5 w-5" /></button></div>
+            <label className="mt-5 block text-sm font-medium">Name<input value={welcomeName} onChange={(e) => setWelcomeName(e.target.value)} maxLength={100} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" autoComplete="name" /></label>
+            <label className="mt-3 block text-sm font-medium">Phone<input value={welcomePhone} onChange={(e) => setWelcomePhone(e.target.value)} inputMode="tel" maxLength={20} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" autoComplete="tel" /></label>
+            {profileError && <p className="mt-3 text-sm text-destructive">{profileError}</p>}
+            <p className="mt-4 text-xs text-muted-foreground">Your details are used for restaurant service and visit analytics.</p>
+            <button disabled={submittingProfile} className="mt-4 w-full rounded-lg bg-primary px-4 py-2.5 font-semibold text-primary-foreground disabled:opacity-60">{submittingProfile ? "Saving..." : "Continue"}</button>
+            <button type="button" onClick={closeWelcome} className="mt-3 w-full text-sm text-muted-foreground underline">Continue without details</button>
+          </form>
+        </div>
+      )}
+
       {/* Header */}
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-3">
@@ -97,7 +135,7 @@ export default function Menu() {
               <h1 className="font-bold text-lg text-foreground" style={{ fontFamily: "var(--app-font-serif)" }}>
                 {restaurantName}
               </h1>
-              <p className="text-xs text-muted-foreground">Table {tableId}</p>
+              <p className="text-xs text-muted-foreground">{profile ? `Welcome, ${profile.name}` : `Table ${tableId}`}</p>
             </div>
             <div className="flex items-center gap-2">
               <button

@@ -120,9 +120,8 @@ export default function Menu() {
             <label className="mt-5 block text-sm font-medium">Name<input value={welcomeName} onChange={(e) => setWelcomeName(e.target.value)} maxLength={100} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" autoComplete="name" /></label>
             <label className="mt-3 block text-sm font-medium">Phone<input value={welcomePhone} onChange={(e) => setWelcomePhone(e.target.value)} inputMode="tel" maxLength={20} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" autoComplete="tel" /></label>
             {profileError && <p className="mt-3 text-sm text-destructive">{profileError}</p>}
-            <p className="mt-4 text-xs text-muted-foreground">Your details are used for restaurant service and visit analytics.</p>
+            <p className="mt-4 text-xs text-muted-foreground">Your details are collected to share exclusive offers, updates, and special deals from {restaurantName}.</p>
             <button disabled={submittingProfile} className="mt-4 w-full rounded-lg bg-primary px-4 py-2.5 font-semibold text-primary-foreground disabled:opacity-60">{submittingProfile ? "Saving..." : "Continue"}</button>
-            <button type="button" onClick={closeWelcome} className="mt-3 w-full text-sm text-muted-foreground underline">Continue without details</button>
           </form>
         </div>
       )}

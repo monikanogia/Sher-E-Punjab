@@ -52,6 +52,34 @@ function userAgentHash(req: Request) {
   return ua ? createHash("sha256").update(ua).digest("hex") : null;
 }
 
+// Count-only dashboard data. This intentionally excludes customer contact data.
+router.get("/analytics/summary", async (req, res) => {
+  try {
+    const visits = await db.select({ visitorId: customerMenuVisitsTable.visitorId })
+      .from(customerMenuVisitsTable)
+      .where(eq(customerMenuVisitsTable.eventType, "visit"));
+    const qrScans = await db.select({
+      visitorId: customerMenuVisitsTable.visitorId,
+      tableId: customerMenuVisitsTable.tableId,
+    }).from(customerMenuVisitsTable)
+      .where(eq(customerMenuVisitsTable.eventType, "qr_scan"));
+
+    res.json({
+      uniqueWebsiteVisitors: new Set(visits.map(({ visitorId }) => visitorId)).size,
+      uniqueQrScanners: new Set(qrScans.map(({ visitorId }) => visitorId)).size,
+      qrScans: qrScans.length,
+      scansByTable: Object.entries(qrScans.reduce<Record<string, Set<string>>>((counts, scan) => {
+        const tableId = scan.tableId ?? "Unknown";
+        (counts[tableId] ??= new Set()).add(scan.visitorId);
+        return counts;
+      }, {})).map(([tableId, visitors]) => ({ tableId, uniqueScans: visitors.size })),
+    });
+  } catch (err) {
+    req.log.error({ err }, "Analytics summary query failed");
+    res.status(500).json({ error: "Unable to load analytics summary" });
+  }
+});
+
 router.post("/analytics/events", publicRateLimit, async (req, res) => {
   const parsed = eventSchema.safeParse(req.body);
   if (!parsed.success || (parsed.data.eventType === "qr_scan" && !parsed.data.tableId)) {

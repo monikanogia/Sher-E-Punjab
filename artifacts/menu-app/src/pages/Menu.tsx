@@ -654,7 +654,17 @@ function DishCard({
               height={80}
               loading="lazy"
               decoding="async"
+              fetchpriority="low"
               className="w-full h-full object-cover"
+              style={{
+                backgroundColor: '#f0f0f0',
+                backgroundImage: 'linear-gradient(90deg, #f0f0f0 0px, #f8f8f8 40px, #f0f0f0 80px)',
+                backgroundSize: '200% 100%',
+              }}
+              onLoad={(e) => {
+                const img = e.target as HTMLImageElement;
+                img.style.backgroundImage = 'none';
+              }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">

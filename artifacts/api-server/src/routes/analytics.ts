@@ -106,7 +106,12 @@ router.post("/analytics/profile", publicRateLimit, async (req, res) => {
     req.log.info({ visitorId, name, phone, tableId }, "Attempting database insert");
     
     await db.insert(customerMenuVisitsTable).values({
-      visitorId, name, phone, tableId: tableId ?? null, eventType: "profile_submitted",
+      visitorId, 
+      name, 
+      phone, 
+      tableId: tableId ?? null, 
+      eventType: "profile_submitted",
+      eventDay: null,  // Explicitly set to null for profile submissions
       userAgentHash: userAgentHash(req),
     });
     

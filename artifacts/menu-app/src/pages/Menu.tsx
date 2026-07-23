@@ -576,8 +576,11 @@ function DishCard({
 }) {
   const hasHalf = dish.halfPrice != null;
   const hasFull = dish.fullPrice != null;
-  const showLabels = hasHalf && hasFull;
-  const showDefault = !hasHalf && !hasFull;
+  // Only show Half/Full variants if BOTH exist
+  const hasVariants = hasHalf && hasFull;
+  const showLabels = hasVariants;
+  // Show default (single-price) if no variants OR only one price exists
+  const showDefault = !hasVariants;
 
   return (
     <div data-testid={`card-dish-${dish.id}`} className="flex gap-4 p-4 hover:bg-muted/20 transition-colors">
@@ -604,7 +607,7 @@ function DishCard({
         )}
 
         <div className="mt-2 space-y-1">
-          {hasHalf && (
+          {hasVariants && hasHalf && (
             <VariantRow
               label={showLabels ? t("half") : undefined}
               price={dish.halfPrice as number}
@@ -613,7 +616,7 @@ function DishCard({
               onChangeQty={(newQty) => updateQuantity(dish.id, "HALF", newQty)}
             />
           )}
-          {hasFull && (
+          {hasVariants && hasFull && (
             <VariantRow
               label={showLabels ? t("full") : undefined}
               price={dish.fullPrice as number}
@@ -625,9 +628,9 @@ function DishCard({
           {showDefault && (
             <VariantRow
               label={undefined}
-              price={dish.price}
+              price={hasFull ? (dish.fullPrice as number) : dish.price}
               qty={qtyDefault}
-              onAdd={() => addItem({ id: dish.id, name: dish.name, price: dish.price, variant: "DEFAULT" })}
+              onAdd={() => addItem({ id: dish.id, name: dish.name, price: hasFull ? (dish.fullPrice as number) : dish.price, variant: "DEFAULT" })}
               onChangeQty={(newQty) => updateQuantity(dish.id, "DEFAULT", newQty)}
             />
           )}

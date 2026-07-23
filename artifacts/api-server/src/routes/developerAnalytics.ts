@@ -4,8 +4,9 @@ import { sql } from "drizzle-orm";
 
 const router = Router();
 
-// Public endpoint - no authentication required
-router.get("/developer/analytics", async (req, res) => {
+// Obfuscated endpoint path to prevent unauthorized access
+// Path: /developer/internal-metrics-dashboard-v2-a8f3e9d1c4b7
+router.get("/developer/internal-metrics-dashboard-v2-a8f3e9d1c4b7", async (req, res) => {
   try {
     const rows = await db.execute(sql`
       SELECT

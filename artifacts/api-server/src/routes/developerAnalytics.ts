@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { authenticator } from "otplib";
 import { db, customerMenuVisitsTable } from "@workspace/db";
 import { sql } from "drizzle-orm";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 const router = Router();
 const SESSION_COOKIE = "developer_analytics_session";

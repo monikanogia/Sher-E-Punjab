@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { Router, type Request, type Response } from "express";
 import { db, customerMenuVisitsTable } from "@workspace/db";
 import { and, eq } from "drizzle-orm";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 const router = Router();
 const VISITOR_ID = z.string().uuid();

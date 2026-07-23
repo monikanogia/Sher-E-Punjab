@@ -557,7 +557,7 @@ export default function Menu() {
       )}
     </div>
   );
-}
+});
 
 const DishCard = memo(function DishCard({
   dish,
@@ -655,7 +655,7 @@ const DishCard = memo(function DishCard({
       </div>
     </div>
   );
-}););
+});
 
 const VariantRow = memo(function VariantRow({
   label, price, qty, onAdd, onChangeQty,

@@ -85,13 +85,15 @@ router.post("/analytics/events", publicRateLimit, async (req, res) => {
 router.post("/analytics/profile", publicRateLimit, async (req, res) => {
   const parsed = profileSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: "Invalid request body" });
+    req.log.warn({ errors: parsed.error.errors, body: req.body }, "Invalid profile submission");
+    res.status(400).json({ error: "Invalid request body", details: parsed.error.errors });
     return;
   }
   const { visitorId, name, tableId } = parsed.data;
   const phone = normalizePhone(parsed.data.phone);
   if (phone.length < 8 || phone.length > 15) {
-    res.status(400).json({ error: "Invalid request body" });
+    req.log.warn({ phone: parsed.data.phone, normalized: phone }, "Invalid phone length");
+    res.status(400).json({ error: "Phone number must be 8-15 digits" });
     return;
   }
   try {
@@ -99,9 +101,10 @@ router.post("/analytics/profile", publicRateLimit, async (req, res) => {
       visitorId, name, phone, tableId: tableId ?? null, eventType: "profile_submitted",
       userAgentHash: userAgentHash(req),
     });
+    req.log.info({ visitorId, name, tableId }, "Profile submitted successfully");
     res.status(201).json({ ok: true });
   } catch (err) {
-    req.log.error({ err }, "Customer profile submission failed");
+    req.log.error({ err, visitorId, name }, "Customer profile submission failed");
     res.status(500).json({ error: "Unable to save profile" });
   }
 });

@@ -26,6 +26,31 @@ export async function trackEvent(eventType: "visit" | "qr_scan", tableId?: strin
   await fetch("/api/analytics/events", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ visitorId: getVisitorId(), eventType, tableId, sourcePath: "/menu" }) });
 }
 export async function submitProfile(name: string, phone: string, tableId?: string) {
-  const response = await fetch("/api/analytics/profile", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ visitorId: getVisitorId(), name, phone, tableId }) });
-  if (!response.ok) throw new Error("Unable to save profile");
+  try {
+    const response = await fetch("/api/analytics/profile", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        visitorId: getVisitorId(),
+        name,
+        phone,
+        tableId
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      console.error('Profile submission failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData
+      });
+      throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Profile submission error:', error);
+    throw error;
+  }
 }

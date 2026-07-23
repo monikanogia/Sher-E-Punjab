@@ -83,29 +83,38 @@ router.post("/analytics/events", publicRateLimit, async (req, res) => {
 });
 
 router.post("/analytics/profile", publicRateLimit, async (req, res) => {
+  // Log incoming request for debugging
+  req.log.info({ body: req.body }, "Profile submission attempt");
+  
   const parsed = profileSchema.safeParse(req.body);
   if (!parsed.success) {
-    req.log.warn({ errors: parsed.error.errors, body: req.body }, "Invalid profile submission");
+    req.log.warn({ errors: parsed.error.errors, body: req.body }, "Invalid profile submission - validation failed");
     res.status(400).json({ error: "Invalid request body", details: parsed.error.errors });
     return;
   }
   const { visitorId, name, tableId } = parsed.data;
   const phone = normalizePhone(parsed.data.phone);
+  
+  req.log.info({ phone: parsed.data.phone, normalized: phone, length: phone.length }, "Phone normalization");
+  
   if (phone.length < 8 || phone.length > 15) {
-    req.log.warn({ phone: parsed.data.phone, normalized: phone }, "Invalid phone length");
+    req.log.warn({ phone: parsed.data.phone, normalized: phone, length: phone.length }, "Invalid phone length");
     res.status(400).json({ error: "Phone number must be 8-15 digits" });
     return;
   }
   try {
+    req.log.info({ visitorId, name, phone, tableId }, "Attempting database insert");
+    
     await db.insert(customerMenuVisitsTable).values({
       visitorId, name, phone, tableId: tableId ?? null, eventType: "profile_submitted",
       userAgentHash: userAgentHash(req),
     });
+    
     req.log.info({ visitorId, name, tableId }, "Profile submitted successfully");
     res.status(201).json({ ok: true });
   } catch (err) {
-    req.log.error({ err, visitorId, name }, "Customer profile submission failed");
-    res.status(500).json({ error: "Unable to save profile" });
+    req.log.error({ err, visitorId, name, phone, tableId, errorMessage: err instanceof Error ? err.message : 'Unknown error' }, "Customer profile submission failed");
+    res.status(500).json({ error: "Unable to save profile", details: err instanceof Error ? err.message : 'Unknown error' });
   }
 });
 

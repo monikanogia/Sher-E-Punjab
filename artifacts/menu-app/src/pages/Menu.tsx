@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, memo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearch } from "wouter";
 import { useListCategories, useListDishes, useGetPublicSettings } from "@workspace/api-client-react";
 import { useCart } from "@/contexts/CartContext";

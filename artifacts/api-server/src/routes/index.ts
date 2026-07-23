@@ -15,12 +15,14 @@ const router: IRouter = Router();
 router.use(healthRouter);
 router.use(authRouter);
 router.use(menuRouter);
+// Public customer tracking must be mounted before the admin routers. Each admin
+// router installs requireAdmin at router scope, so it rejects later routes.
+router.use(analyticsRouter);
 router.use(adminCategoriesRouter);
 router.use(adminDishesRouter);
 router.use(adminSettingsRouter);
 router.use(adminStatsRouter);
 router.use(adminTablesRouter);
-router.use(analyticsRouter);
 router.use(developerAnalyticsRouter);
 
 export default router;

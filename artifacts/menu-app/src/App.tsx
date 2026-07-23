@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -5,15 +6,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import NotFound from "@/pages/not-found";
-import Landing from "@/pages/Landing";
-import Menu from "@/pages/Menu";
-import AdminLogin from "@/pages/admin/Login";
-import AdminDashboard from "@/pages/admin/Dashboard";
-import AdminCategories from "@/pages/admin/Categories";
-import AdminDishes from "@/pages/admin/Dishes";
-import AdminSettings from "@/pages/admin/Settings";
-import AdminTables from "@/pages/admin/Tables";
+const NotFound = lazy(() => import("@/pages/not-found"));
+const Landing = lazy(() => import("@/pages/Landing"));
+const Menu = lazy(() => import("@/pages/Menu"));
+const AdminLogin = lazy(() => import("@/pages/admin/Login"));
+const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
+const AdminCategories = lazy(() => import("@/pages/admin/Categories"));
+const AdminDishes = lazy(() => import("@/pages/admin/Dishes"));
+const AdminSettings = lazy(() => import("@/pages/admin/Settings"));
+const AdminTables = lazy(() => import("@/pages/admin/Tables"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,9 +27,14 @@ const queryClient = new QueryClient({
   },
 });
 
+function PageFallback() {
+  return <div className="min-h-screen bg-background animate-pulse" aria-label="Loading page" />;
+}
+
 function Router() {
   return (
-    <Switch>
+    <Suspense fallback={<PageFallback />}>
+      <Switch>
       <Route path="/" component={Landing} />
       <Route path="/menu" component={Menu} />
       <Route path="/admin/login" component={AdminLogin} />
@@ -57,8 +63,9 @@ function Router() {
           <AdminTables />
         </ProtectedRoute>
       </Route>
-      <Route component={NotFound} />
-    </Switch>
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 

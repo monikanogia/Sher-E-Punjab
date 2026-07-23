@@ -23,13 +23,15 @@ export function shouldShowWelcome() {
 export function saveProfile(name: string) { localStorage.setItem(PROFILE_KEY, JSON.stringify({ name, expiresAt: Date.now() + DAY })); localStorage.removeItem(DISMISSED_KEY); }
 export function dismissWelcome() { localStorage.setItem(DISMISSED_KEY, String(Date.now())); }
 export async function trackEvent(eventType: "visit" | "qr_scan", tableId?: string) {
-  await fetch("/api/analytics/events", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ visitorId: getVisitorId(), eventType, tableId, sourcePath: "/menu" }) });
+  await fetch("/api/analytics/events", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ visitorId: getVisitorId(), eventType, tableId, sourcePath: "/menu" }) });
 }
 export async function submitProfile(name: string, phone: string, tableId?: string) {
   try {
+    console.log('[submitProfile] Starting submission:', { name, phone, tableId, visitorId: getVisitorId() });
+    
     const response = await fetch("/api/analytics/profile", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         visitorId: getVisitorId(),
         name,
@@ -38,19 +40,35 @@ export async function submitProfile(name: string, phone: string, tableId?: strin
       })
     });
     
+    console.log('[submitProfile] Response received:', { 
+      status: response.status, 
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries())
+    });
+    
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-      console.error('Profile submission failed:', {
+      const responseText = await response.text();
+      console.error('[submitProfile] Request failed:', {
         status: response.status,
         statusText: response.statusText,
-        error: errorData
+        responseText: responseText
       });
+      
+      let errorData;
+      try {
+        errorData = JSON.parse(responseText);
+      } catch {
+        errorData = { error: responseText || 'Unknown error' };
+      }
+      
       throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
     }
     
-    return await response.json();
+    const result = await response.json();
+    console.log('[submitProfile] Success:', result);
+    return result;
   } catch (error) {
-    console.error('Profile submission error:', error);
+    console.error('[submitProfile] Exception caught:', error);
     throw error;
   }
 }

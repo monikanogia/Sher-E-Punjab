@@ -1,0 +1,10 @@
+# FORCE RENDER DEPLOYMENT
+
+This empty commit triggers a fresh deployment on Render.
+
+The issue: Old code with authentication middleware is still deployed.
+The fix: This commit will force Render to pull latest master and redeploy.
+
+After deployment, these endpoints should work without authentication:
+- POST /api/analytics/profile
+- POST /api/analytics/events

@@ -42,7 +42,7 @@ export default function Landing() {
           {/* Table / Welcome */}
           <div className="flex items-center gap-2" style={{ color: "rgba(212,160,50,0.85)", letterSpacing: ".08em", fontFamily: "'Cinzel', serif" }}>
             <span>🪑</span>
-            <span>{tableId ? `Table ${tableId} — Welcome!` : "Welcome to Sher-E-Punjab"}</span>
+            <span>{tableId ? `${t("table")} ${tableId} — ${t("welcome")}!` : `${t("welcome")} to Sher-E-Punjab`}</span>
           </div>
 
           <div className="w-1 h-1 rounded-full opacity-30" style={{ background: "#d4a032" }} />
@@ -75,7 +75,7 @@ export default function Landing() {
             {t("chefsSpecial")}
           </h2>
           <p style={{ fontFamily: "'EB Garamond', Georgia, serif", fontStyle: "italic", color: "#8a7060", fontSize: "1rem" }}>
-            Our most loved dishes, handpicked for you
+            {t("tagline")}
           </p>
         </div>
 
@@ -131,12 +131,12 @@ export default function Landing() {
                         {dish.isVeg ? (
                           <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
                             style={{ background: "rgba(240,255,240,0.95)", color: "#2e7d32", border: "1px solid #4caf50" }}>
-                            <Leaf className="h-3 w-3" /> Veg
+                            <Leaf className="h-3 w-3" /> {t("vegBadge")}
                           </span>
                         ) : (
                           <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
                             style={{ background: "rgba(255,240,240,0.95)", color: "#c62828", border: "1px solid #e53935" }}>
-                            <Flame className="h-3 w-3" /> Non-Veg
+                            <Flame className="h-3 w-3" /> {t("nonVegBadge")}
                           </span>
                         )}
                       </div>
@@ -202,7 +202,7 @@ export default function Landing() {
 
           {/* Right — developer info */}
           <div className="flex items-center gap-2 flex-wrap" style={{ fontSize: ".75rem" }}>
-            <span style={{ color: "#8a7060", fontFamily: "sans-serif" }}>Built by</span>
+            <span style={{ color: "#8a7060", fontFamily: "sans-serif" }}>{t("builtBy")}</span>
             <span style={{ color: "#4a3428", fontWeight: 600, fontFamily: "sans-serif" }}>Monika Nogia</span>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#c9a35f", display: "inline-block" }} />
             <span style={{ color: "#c0b0a0" }}>·</span>
@@ -217,7 +217,7 @@ export default function Landing() {
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
                 <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.112 1.522 5.84L.054 23.5l5.818-1.522A11.93 11.93 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.793 9.793 0 0 1-5.001-1.371l-.36-.214-3.714.972.991-3.617-.235-.372A9.79 9.79 0 0 1 2.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z" />
               </svg>
-              Contact
+              {t("contact")}
             </a>
             <span style={{ color: "#c0b0a0" }}>·</span>
             <a

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSearch } from "wouter";
 import { useListCategories, useListDishes, useGetPublicSettings } from "@workspace/api-client-react";
 import { useCart } from "@/contexts/CartContext";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   Search, ShoppingCart, X, Plus, Minus, Phone, Leaf, Flame,
   ChevronDown, ChevronUp, Utensils, MessageCircle, Star
@@ -22,13 +23,17 @@ export default function Menu() {
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const cartRef = useRef<HTMLDivElement>(null);
 
+  const debouncedSearchQuery = useDebouncedValue(searchQuery.trim(), 300);
   const categories = useListCategories();
   const settings = useGetPublicSettings();
-  console.log("🔥 MERI SETTINGS:", settings.data);
   const { data: dishes } = useListDishes({
-    search: searchQuery || undefined,
-    isVeg: vegFilter === "veg" ? true : vegFilter === "nonveg" ? false : undefined,
-  }, { query: { queryKey: ["dishes", searchQuery, vegFilter] } });
+    search: debouncedSearchQuery || undefined,
+  }, {
+    query: {
+      queryKey: ["dishes", debouncedSearchQuery],
+      enabled: Boolean(debouncedSearchQuery),
+    },
+  });
 
   const { items, addItem, updateQuantity, totalItems, totalPrice, clearCart } = useCart();
   const whatsappNumber = settings.data?.whatsappNumber ?? "919999999999";
@@ -36,9 +41,12 @@ export default function Menu() {
 
   useEffect(() => {
     if (categories.data && expandedCategories.size === 0) {
-      setExpandedCategories(new Set(categories.data.map((c) => c.id)));
+      const firstCategoryId = categories.data[0]?.id;
+      if (firstCategoryId !== undefined) {
+        setExpandedCategories(new Set([firstCategoryId]));
+      }
     }
-  }, [categories.data]);
+  }, [categories.data, expandedCategories.size]);
 
   const toggleCategory = (id: number) => {
     setExpandedCategories((prev) => {
@@ -68,7 +76,7 @@ export default function Menu() {
   const filteredDishes = (catDishes: Dish[]) => {
     return catDishes.filter((d) => {
       if (!d.isAvailable) return false;
-      if (searchQuery && !d.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (debouncedSearchQuery && !d.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase())) return false;
       if (vegFilter === "veg" && !d.isVeg) return false;
       if (vegFilter === "nonveg" && d.isVeg) return false;
       return true;
@@ -164,9 +172,9 @@ export default function Menu() {
 
       {/* Menu content */}
       <div className="max-w-2xl mx-auto px-4 py-4">
-        {searchQuery ? (
+        {debouncedSearchQuery ? (
           <div>
-            <p className="text-sm text-muted-foreground mb-4">{allFilteredDishes.length} results for "{searchQuery}"</p>
+            <p className="text-sm text-muted-foreground mb-4">{allFilteredDishes.length} results for "{debouncedSearchQuery}"</p>
             <div className="space-y-3">
               {allFilteredDishes.map((dish) => (
                 <DishCard
@@ -195,7 +203,14 @@ export default function Menu() {
               ))
             ) : (
               (categories.data ?? []).map((cat) => {
-                const catDishes = filteredDishes(cat.dishes ?? []);
+                const isExpanded = expandedCategories.has(cat.id);
+                const availableDishCount = (cat.dishes ?? []).reduce((count, dish) => {
+                  if (!dish.isAvailable) return count;
+                  if (vegFilter === "veg" && !dish.isVeg) return count;
+                  if (vegFilter === "nonveg" && dish.isVeg) return count;
+                  return count + 1;
+                }, 0);
+                const catDishes = isExpanded ? filteredDishes(cat.dishes ?? []) : [];
                 return (
                   <div key={cat.id} id={`category-${cat.id}`} className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
                     <button
@@ -208,7 +223,7 @@ export default function Menu() {
                           {cat.name}
                         </span>
                         <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                          {catDishes.length} items
+                          {availableDishCount} items
                         </span>
                       </div>
                       {expandedCategories.has(cat.id) ? (
@@ -484,7 +499,12 @@ export default function Menu() {
             {/* Grid */}
             <div className="p-4 grid grid-cols-2 gap-3">
               {(categories.data ?? []).map((cat) => {
-                const count = filteredDishes(cat.dishes ?? []).length;
+                const count = (cat.dishes ?? []).reduce((total, dish) => {
+                  if (!dish.isAvailable) return total;
+                  if (vegFilter === "veg" && !dish.isVeg) return total;
+                  if (vegFilter === "nonveg" && dish.isVeg) return total;
+                  return total + 1;
+                }, 0);
                 return (
                   <button
                     key={cat.id}

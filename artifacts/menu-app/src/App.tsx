@@ -22,9 +22,12 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      staleTime: 5 * 60_000,
-      gcTime: 30 * 60_000,
+      staleTime: 10 * 60_000,        // 10 minutes (increased from 5)
+      gcTime: 60 * 60_000,            // 1 hour (increased from 30 min)
       refetchOnWindowFocus: false,
+      refetchOnMount: false,          // Don't refetch on component mount
+      refetchOnReconnect: true,       // Refetch when internet reconnects
+      networkMode: 'offlineFirst',    // Use cache first, then network
     },
   },
 });

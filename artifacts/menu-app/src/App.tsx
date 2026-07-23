@@ -15,6 +15,7 @@ const AdminCategories = lazy(() => import("@/pages/admin/Categories"));
 const AdminDishes = lazy(() => import("@/pages/admin/Dishes"));
 const AdminSettings = lazy(() => import("@/pages/admin/Settings"));
 const AdminTables = lazy(() => import("@/pages/admin/Tables"));
+const DeveloperAnalytics = lazy(() => import("@/pages/developer/Analytics"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/" component={Landing} />
       <Route path="/menu" component={Menu} />
       <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/developer/analytics" component={DeveloperAnalytics} />
       <Route path="/admin">
         <ProtectedRoute>
           <AdminDashboard />

@@ -57,12 +57,51 @@ export default function Menu() {
 
   const closeWelcome = () => { dismissWelcome(); setWelcomeOpen(false); };
   const handleProfileSubmit = async (event: React.FormEvent) => {
-    event.preventDefault(); setProfileError("");
-    if (!welcomeName.trim() || !/^\+?[0-9][0-9\s-]{7,19}$/.test(welcomePhone.trim())) { setProfileError("Enter your name and a valid phone number."); return; }
+    event.preventDefault();
+    setProfileError("");
+    
+    // Validation
+    const name = welcomeName.trim();
+    const phone = welcomePhone.trim();
+    
+    if (!name) {
+      setProfileError("Please enter your name.");
+      return;
+    }
+    
+    if (name.length < 2) {
+      setProfileError("Name must be at least 2 characters.");
+      return;
+    }
+    
+    if (!phone) {
+      setProfileError("Please enter your phone number.");
+      return;
+    }
+    
+    if (!/^\+?[0-9][0-9\s-]{7,19}$/.test(phone)) {
+      setProfileError("Please enter a valid phone number (8-20 digits).");
+      return;
+    }
+    
     setSubmittingProfile(true);
-    try { await submitProfile(welcomeName.trim(), welcomePhone.trim(), tableId); saveProfile(welcomeName.trim()); setProfile(getActiveProfile()); setWelcomeOpen(false); }
-    catch { setProfileError("We could not save your details. You can still close this form and view the menu."); }
-    finally { setSubmittingProfile(false); }
+    
+    try {
+      await submitProfile(name, phone, tableId);
+      saveProfile(name);
+      setProfile(getActiveProfile());
+      setWelcomeOpen(false);
+    } catch (error) {
+      console.error('Profile submission error:', error);
+      // Check if it's a network error
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        setProfileError("Network error. Please check your internet connection and try again.");
+      } else {
+        setProfileError("We could not save your details. You can still close this form and view the menu.");
+      }
+    } finally {
+      setSubmittingProfile(false);
+    }
   };
 
   useEffect(() => {

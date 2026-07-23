@@ -15,8 +15,8 @@ const eventSchema = z.object({
 });
 const profileSchema = z.object({
   visitorId: VISITOR_ID,
-  name: z.string().trim().min(1).max(100),
-  phone: z.string().trim().regex(/^\+?[0-9][0-9\s-]{7,19}$/),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
+  phone: z.string().trim().regex(/^\+?[0-9][0-9\s-]{7,19}$/, "Invalid phone number format"),
   tableId: TABLE_ID,
 });
 

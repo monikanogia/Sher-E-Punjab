@@ -164,8 +164,33 @@ export default function Menu() {
                 <button type="button" onClick={closeWelcome} aria-label="Close welcome dialog" className="rounded p-1 text-muted-foreground hover:bg-muted"><X className="h-5 w-5" /></button>
               </div>
             </div>
-            <label className="mt-5 block text-sm font-medium">{t("name")}<input value={welcomeName} onChange={(e) => setWelcomeName(e.target.value)} maxLength={100} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" autoComplete="name" /></label>
-            <label className="mt-3 block text-sm font-medium">{t("phone")}<input value={welcomePhone} onChange={(e) => setWelcomePhone(e.target.value)} inputMode="tel" maxLength={20} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" autoComplete="tel" /></label>
+            <label className="mt-5 block text-sm font-medium">
+              {t("name")}
+              <input
+                value={welcomeName}
+                onChange={(e) => setWelcomeName(e.target.value)}
+                minLength={2}
+                maxLength={100}
+                required
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
+                autoComplete="name"
+                placeholder="Enter your full name"
+              />
+            </label>
+            <label className="mt-3 block text-sm font-medium">
+              {t("phone")}
+              <input
+                value={welcomePhone}
+                onChange={(e) => setWelcomePhone(e.target.value)}
+                inputMode="tel"
+                minLength={8}
+                maxLength={20}
+                required
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
+                autoComplete="tel"
+                placeholder="Enter your phone number"
+              />
+            </label>
             {profileError && <p className="mt-3 text-sm text-destructive">{profileError}</p>}
             <p className="mt-4 text-xs text-muted-foreground">Your details are collected to share exclusive offers, updates, and special deals from {restaurantName}.</p>
             <button disabled={submittingProfile} className="mt-4 w-full rounded-lg bg-primary px-4 py-2.5 font-semibold text-primary-foreground disabled:opacity-60">{submittingProfile ? t("saving") : t("continue")}</button>

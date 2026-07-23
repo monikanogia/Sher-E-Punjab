@@ -8,6 +8,7 @@ import adminSettingsRouter from "./adminSettings.js";
 import adminStatsRouter from "./adminStats.js";
 import adminTablesRouter from "./adminTables.js";
 import analyticsRouter from "./analytics.js";
+import developerAnalyticsRouter from "./developerAnalytics.js";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(adminSettingsRouter);
 router.use(adminStatsRouter);
 router.use(adminTablesRouter);
 router.use(analyticsRouter);
+router.use(developerAnalyticsRouter);
 
 export default router;

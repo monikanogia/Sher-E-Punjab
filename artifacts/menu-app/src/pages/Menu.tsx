@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo, useCallback } from "react";
 import { useSearch } from "wouter";
 import { useListCategories, useListDishes, useGetPublicSettings } from "@workspace/api-client-react";
 import { useCart } from "@/contexts/CartContext";
@@ -559,7 +559,7 @@ export default function Menu() {
   );
 }
 
-function DishCard({
+const DishCard = memo(function DishCard({
   dish,
   qtyDefault,
   qtyHalf,
@@ -655,9 +655,9 @@ function DishCard({
       </div>
     </div>
   );
-}
+}););
 
-function VariantRow({
+const VariantRow = memo(function VariantRow({
   label, price, qty, onAdd, onChangeQty,
 }: {
   label?: string;

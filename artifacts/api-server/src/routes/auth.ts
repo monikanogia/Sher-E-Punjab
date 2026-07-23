@@ -18,19 +18,13 @@ router.post("/admin/login", async (req: Request, res: Response) => {
       return;
     }
     const { username, password } = parsed.data;
-    console.log("Login attempt for username:", username);
     const [admin] = await db.select().from(adminsTable).where(eq(adminsTable.username, username));
-
-    console.log("Admin record from DB:", admin);
     if (!admin) {
       res.status(401).json({ error: "Invalid credentials" });
       return;
     }
 
-    console.log("Comparing password:", password, "with stored hash:", admin.passwordHash);
     const valid = await bcrypt.compare(password, admin.passwordHash);
-
-    console.log("Is password valid?", valid);
     if (!valid) {
       res.status(401).json({ error: "Invalid credentials" });
       return;

@@ -209,10 +209,9 @@ export default function Menu() {
                 {restaurantName}
               </h1>
               <p className="text-xs text-muted-foreground">{profile ? `Welcome, ${profile.name}` : `Table ${tableId}`}</p>
+              <div className="mt-2"><LanguageSelector compact={true} /></div>
             </div>
-            <div className="flex items-center gap-2">
-              <LanguageSelector compact={true} />
-
+            <div className="flex flex-none items-center gap-2">
               <button
                 onClick={callWaiter}
                 data-testid="button-call-waiter"
@@ -645,13 +644,12 @@ function DishCard({
   updateQuantity: (id: number, variant: DishVariant, qty: number) => void;
   t: (key: string) => string;
 }) {
-  const hasHalf = dish.halfPrice != null;
-  const hasFull = dish.fullPrice != null;
-  // Only show Half/Full variants if BOTH exist
-  const hasVariants = hasHalf && hasFull;
-  const showLabels = hasVariants;
-  // Show default (single-price) if no variants OR only one price exists
-  const showDefault = !hasVariants;
+  // Numeric DB values can arrive as strings, and legacy single-price rows can
+  // contain 0 instead of null. Only two positive prices are real variants.
+  const halfPrice = Number(dish.halfPrice);
+  const fullPrice = Number(dish.fullPrice);
+  const hasVariants = Number.isFinite(halfPrice) && halfPrice > 0 && Number.isFinite(fullPrice) && fullPrice > 0;
+  const defaultPrice = Number.isFinite(fullPrice) && fullPrice > 0 ? fullPrice : Number(dish.price);
 
   return (
     <div data-testid={`card-dish-${dish.id}`} className="flex gap-4 p-4 hover:bg-muted/20 transition-colors">
@@ -678,32 +676,32 @@ function DishCard({
         )}
 
         <div className="mt-2 space-y-1">
-          {hasVariants && hasHalf && (
+          {hasVariants && (
             <VariantRow
-              label={showLabels ? t("half") : undefined}
-              price={dish.halfPrice as number}
+              label={t("half")}
+              price={halfPrice}
               qty={qtyHalf}
-              onAdd={() => addItem({ id: dish.id, name: `${dish.name} (${t("half")})`, price: dish.halfPrice as number, variant: "HALF" })}
+              onAdd={() => addItem({ id: dish.id, name: `${dish.name} (${t("half")})`, price: halfPrice, variant: "HALF" })}
               onChangeQty={(newQty) => updateQuantity(dish.id, "HALF", newQty)}
               t={t}
             />
           )}
-          {hasVariants && hasFull && (
+          {hasVariants && (
             <VariantRow
-              label={showLabels ? t("full") : undefined}
-              price={dish.fullPrice as number}
+              label={t("full")}
+              price={fullPrice}
               qty={qtyFull}
-              onAdd={() => addItem({ id: dish.id, name: `${dish.name} (${t("full")})`, price: dish.fullPrice as number, variant: "FULL" })}
+              onAdd={() => addItem({ id: dish.id, name: `${dish.name} (${t("full")})`, price: fullPrice, variant: "FULL" })}
               onChangeQty={(newQty) => updateQuantity(dish.id, "FULL", newQty)}
               t={t}
             />
           )}
-          {showDefault && (
+          {!hasVariants && (
             <VariantRow
               label={undefined}
-              price={hasFull ? (dish.fullPrice as number) : dish.price}
+              price={defaultPrice}
               qty={qtyDefault}
-              onAdd={() => addItem({ id: dish.id, name: dish.name, price: hasFull ? (dish.fullPrice as number) : dish.price, variant: "DEFAULT" })}
+              onAdd={() => addItem({ id: dish.id, name: dish.name, price: defaultPrice, variant: "DEFAULT" })}
               onChangeQty={(newQty) => updateQuantity(dish.id, "DEFAULT", newQty)}
               t={t}
             />

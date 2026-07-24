@@ -59,7 +59,7 @@ export default function Landing() {
           <div className="w-1 h-1 rounded-full opacity-30" style={{ background: "#d4a032" }} />
 
           {/* Language Selector */}
-          <div style={{ color: "white" }}>
+          <div className="text-[#2b1d17]">
             <LanguageSelector compact={true} />
           </div>
         </div>

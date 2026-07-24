@@ -19,10 +19,22 @@ export const LanguageSelector = memo(function LanguageSelector({ compact = false
 
     const rect = trigger.getBoundingClientRect();
     const width = Math.min(DROPDOWN_WIDTH, window.innerWidth - VIEWPORT_MARGIN * 2);
-    const left = Math.min(
-      Math.max(VIEWPORT_MARGIN, rect.right - width),
-      window.innerWidth - width - VIEWPORT_MARGIN,
-    );
+    
+    // Try right-aligning first (dropdown right edge aligns with button right edge)
+    let left = rect.right - width;
+    
+    // If that would overflow left, switch to left-align (dropdown left edge aligns with button left edge)
+    if (left < VIEWPORT_MARGIN) {
+      left = rect.left;
+    }
+    
+    // If still overflowing right, clamp to viewport
+    if (left + width > window.innerWidth - VIEWPORT_MARGIN) {
+      left = window.innerWidth - width - VIEWPORT_MARGIN;
+    }
+    
+    // Final safety: ensure we never go below the left margin
+    left = Math.max(VIEWPORT_MARGIN, left);
 
     setPosition({ left, top: rect.bottom + 8, width });
   }, []);

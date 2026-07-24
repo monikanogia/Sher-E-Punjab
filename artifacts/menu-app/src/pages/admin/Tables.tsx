@@ -45,10 +45,12 @@ export default function AdminTables() {
     deleteMutation.mutate({ id });
   };
 
+  const STABLE_BASE_URL =
+    import.meta.env.VITE_PUBLIC_APP_URL ??
+    "https://sher-e-punjab-menu-app.vercel.app";
+
   const showQR = async (tableNumber: string, label: string | null | undefined) => {
-    //const menuUrl = `${window.location.origin}/menu?table=${tableNumber}`;
-    // ✅ Sahi — pehle landing pe aaye, phir menu
-    const qrUrl = `${window.location.origin}/?table=${tableNumber}`;
+    const qrUrl = `${STABLE_BASE_URL}/menu?table=${encodeURIComponent(tableNumber)}`;
     const dataUrl = await QRCode.toDataURL(qrUrl, { width: 300, margin: 2, color: { dark: "#1a1a1a", light: "#ffffff" } });
     setQrModal({ tableNumber, label, dataUrl });
   };
@@ -190,7 +192,7 @@ export default function AdminTables() {
               />
             </div>
             <p className="text-xs text-muted-foreground mb-5 font-mono break-all">
-              {window.location.origin}/menu?table={qrModal.tableNumber}
+              {import.meta.env.VITE_PUBLIC_APP_URL ?? "https://sher-e-punjab-menu-app.vercel.app"}/menu?table={encodeURIComponent(qrModal.tableNumber)}
             </p>
             <button
               onClick={downloadQR}

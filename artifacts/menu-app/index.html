@@ -9,6 +9,27 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.json" />
     
+    <!-- Aggressive Cache Busting -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
+    <!-- Redirect old deployment URLs to production domain -->
+    <script>
+      (function() {
+        const PRODUCTION_DOMAIN = 'sher-e-punjab-menu-app.vercel.app';
+        const currentHost = window.location.hostname;
+        
+        // Check if current URL is NOT the production domain
+        if (currentHost !== PRODUCTION_DOMAIN && currentHost.includes('vercel.app')) {
+          // Redirect to production domain with same path and query params
+          const newUrl = 'https://' + PRODUCTION_DOMAIN + window.location.pathname + window.location.search + window.location.hash;
+          console.log('🔄 Redirecting from old deployment to production:', newUrl);
+          window.location.replace(newUrl);
+        }
+      })();
+    </script>
+    
     <!-- DNS Prefetch & Preconnect for faster resource loading -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />

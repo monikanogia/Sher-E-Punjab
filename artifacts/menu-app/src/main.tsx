@@ -14,19 +14,15 @@ if (apiUrl) {
   console.error("✗ VITE_API_URL not set in environment!");
 }
 
-// Register Service Worker for offline support
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js', { updateViaCache: 'none' })
-      .then((registration) => {
-        void registration.update();
-        console.log('✓ Service Worker registered:', registration.scope);
-      })
-      .catch((error) => {
-        console.log('✗ Service Worker registration failed:', error);
-      });
-  });
+// Remove the legacy cache-first PWA. It cached navigation HTML and could pin
+// mobile users to an old JavaScript bundle after a deployment.
+if ('serviceWorker' in navigator) {
+  void navigator.serviceWorker.getRegistrations().then((registrations) =>
+    Promise.all(registrations.map((registration) => registration.unregister())),
+  );
+}
+if ('caches' in window) {
+  void caches.keys().then((names) => Promise.all(names.map((name) => caches.delete(name))));
 }
 
 createRoot(document.getElementById("root")!).render(<App />);

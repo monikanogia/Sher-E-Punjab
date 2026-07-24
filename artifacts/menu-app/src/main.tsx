@@ -18,8 +18,9 @@ if (apiUrl) {
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/sw.js')
+      .register('/sw.js', { updateViaCache: 'none' })
       .then((registration) => {
+        void registration.update();
         console.log('✓ Service Worker registered:', registration.scope);
       })
       .catch((error) => {

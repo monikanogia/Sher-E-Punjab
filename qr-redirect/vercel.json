@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://sher-e-punjab-menu-app.vercel.app/$1",
+      "permanent": false
+    }
+  ]
+}
